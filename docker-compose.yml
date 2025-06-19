@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://quest_user:quest_password@db:5432/quest_db
+      - JWT_SECRET_KEY=your-secret-key-change-in-production
+      - ENVIRONMENT=development
+    volumes:
+      - ./uploads:/app/uploads
+      - .:/app
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgis/postgis:15-3.3
+    environment:
+      POSTGRES_DB: quest_db
+      POSTGRES_USER: quest_user
+      POSTGRES_PASSWORD: quest_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:

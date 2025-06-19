@@ -1,0 +1,206 @@
+{
+  "quest_types": [
+    {"name": "Mythological Pilgrimage"},
+    {"name": "Literary Expedition"},
+    {"name": "Cinematic Journey"},
+    {"name": "Gaming Quest"},
+    {"name": "Folklore Investigation"},
+    {"name": "Archaeological Adventure"},
+    {"name": "Supernatural Encounter"},
+    {"name": "Cultural Immersion"},
+    {"name": "Historical Mystery"},
+    {"name": "Nature's Magic"}
+  ],
+  "difficulties": [
+    {"name": "Tourist Trail"},
+    {"name": "Wanderer's Path"},
+    {"name": "Adventurer's Challenge"},
+    {"name": "Hero's Trial"},
+    {"name": "Legendary Odyssey"}
+  ],
+  "interests": [
+    {"name": "Ancient Mythology"},
+    {"name": "Fantasy Literature"},
+    {"name": "Sci-Fi & Futurism"},
+    {"name": "Horror & Supernatural"},
+    {"name": "Gaming Culture"},
+    {"name": "Anime & Manga"},
+    {"name": "Celtic Lore"},
+    {"name": "Norse Legends"},
+    {"name": "Arthurian Romance"},
+    {"name": "Gothic Architecture"},
+    {"name": "Steampunk Aesthetics"},
+    {"name": "Cosmic Horror"},
+    {"name": "Fairy Tales"},
+    {"name": "Urban Legends"},
+    {"name": "Lost Civilizations"}
+  ],
+  "locations": [
+    {
+      "latitude": 55.9486,
+      "longitude": -3.1999,
+      "name": "Edinburgh Castle",
+      "real_world_inspiration": "Edinburgh Castle, Scotland",
+      "description": "Ancient fortress perched on Castle Rock, shrouded in centuries of supernatural tales and royal intrigue."
+    },
+    {
+      "latitude": 51.1789,
+      "longitude": -1.8262,
+      "name": "Stonehenge Portal",
+      "real_world_inspiration": "Stonehenge, England",
+      "description": "Mysterious stone circle believed to be a gateway between worlds, where druids once channeled cosmic energies."
+    },
+    {
+      "latitude": 37.9715,
+      "longitude": 23.7267,
+      "name": "Acropolis of Athena",
+      "real_world_inspiration": "Acropolis of Athens, Greece",
+      "description": "Sacred citadel where the goddess Athena's wisdom still echoes through marble columns and ancient temples."
+    },
+    {
+      "latitude": 41.9029,
+      "longitude": 12.4534,
+      "name": "Colosseum Arena",
+      "real_world_inspiration": "Colosseum, Rome, Italy",
+      "description": "Legendary amphitheater where gladiators' spirits are said to still battle in the moonlight."
+    },
+    {
+      "latitude": 29.9792,
+      "longitude": 31.1342,
+      "name": "Great Pyramid Nexus",
+      "real_world_inspiration": "Great Pyramid of Giza, Egypt",
+      "description": "Ancient wonder hiding chambers of cosmic knowledge and pharaonic curses."
+    },
+    {
+      "latitude": 27.1751,
+      "longitude": 78.0421,
+      "name": "Taj Mahal Sanctuary",
+      "real_world_inspiration": "Taj Mahal, India",
+      "description": "Ethereal mausoleum where eternal love transcends death, built from moonbeams and marble."
+    },
+    {
+      "latitude": 40.4319,
+      "longitude": 116.5704,
+      "name": "Dragon's Wall",
+      "real_world_inspiration": "Great Wall of China",
+      "description": "Serpentine fortification that winds like a sleeping dragon across mountains and valleys."
+    },
+    {
+      "latitude": -13.1631,
+      "longitude": -72.5450,
+      "name": "Machu Picchu Sky City",
+      "real_world_inspiration": "Machu Picchu, Peru",
+      "description": "Lost Incan citadel floating among clouds, where condors carry messages to the sun god."
+    },
+    {
+      "latitude": 48.8584,
+      "longitude": 2.2945,
+      "name": "Notre-Dame Cathedral",
+      "real_world_inspiration": "Notre-Dame de Paris, France",
+      "description": "Gothic masterpiece where gargoyles come alive at night to protect the sacred halls."
+    },
+    {
+      "latitude": 64.1466,
+      "longitude": -21.9426,
+      "name": "Reykjavik Northern Lights",
+      "real_world_inspiration": "Reykjavik, Iceland",
+      "description": "Arctic capital where the Aurora Borealis dances with ancient Norse spirits."
+    }
+  ],
+  "users": [
+    {
+      "display_name": "Gandalf the Guide",
+      "email": "gandalf@adventurersguild.com",
+      "avatar_url": "https://example.com/avatars/gandalf.jpg",
+      "guild_rank": "Archmage Explorer"
+    },
+    {
+      "display_name": "Lara Croft",
+      "email": "lara@tombraider.com",
+      "avatar_url": "https://example.com/avatars/lara.jpg",
+      "guild_rank": "Master Archaeologist"
+    },
+    {
+      "display_name": "Indiana Jones",
+      "email": "indy@archaeology.edu",
+      "avatar_url": "https://example.com/avatars/indy.jpg",
+      "guild_rank": "Legendary Adventurer"
+    }
+  ],
+  "campaigns": [
+    {
+      "title": "Legends of the British Isles",
+      "description": "Journey through the mystical landscapes of Britain, from Arthurian castles to Sherlock Holmes' London, uncovering the stories that shaped fantasy literature."
+    },
+    {
+      "title": "Mediterranean Mythology Tour",
+      "description": "Follow in the footsteps of ancient heroes across Greece, Rome, and Egypt, where gods walked among mortals and legends were born."
+    },
+    {
+      "title": "Eastern Mysticism Trail",
+      "description": "Explore the spiritual and fantastical traditions of Asia, from dragon-guarded temples to anime pilgrimage sites."
+    }
+  ],
+  "sample_quests": [
+    {
+      "name": "The Phantom of Edinburgh Castle",
+      "synopsis": "Investigate the legendary Grey Lady who haunts the ancient fortress, uncovering centuries of royal secrets and supernatural encounters.",
+      "itinerary": "Begin at the castle esplanade at twilight, explore the Crown Jewels chamber, visit St. Margaret's Chapel, and conclude at the Half Moon Battery where the Grey Lady is most often sighted.",
+      "tags": "ghost hunting, Scottish history, royal intrigue, supernatural",
+      "quest_giver": "Castle Keeper MacLeod",
+      "reward": "Ancient Scottish blessing charm and exclusive after-hours castle access",
+      "companions": "Local paranormal investigators and history buffs",
+      "lore_excerpt": "Mary Queen of Scots herself reported seeing the Grey Lady during her imprisonment, describing her as a guardian spirit of the castle's ancient stones.",
+      "artifacts_discovered": "Victorian-era ghost hunting equipment, medieval prayer beads",
+      "media_urls": ["https://example.com/edinburgh1.jpg", "https://example.com/edinburgh2.jpg"]
+    },
+    {
+      "name": "Decoding the Stonehenge Stargate",
+      "synopsis": "Unravel the astronomical mysteries of Stonehenge during the summer solstice, when the ancient stone circle aligns with cosmic forces.",
+      "itinerary": "Arrive before dawn for the solstice sunrise, study the heel stone alignment, explore the nearby cursus monuments, and participate in the traditional solstice celebration.",
+      "tags": "astronomy, druids, ancient mysteries, solstice",
+      "quest_giver": "Professor Merlin Starweaver",
+      "reward": "Handcrafted druidic staff and astronomical calculation scroll",
+      "companions": "Modern druids, archaeoastronomers, and fellow mystics",
+      "lore_excerpt": "Geoffrey of Monmouth claimed Merlin himself transported these stones from Ireland using magic, but modern theories suggest even more incredible cosmic purposes.",
+      "artifacts_discovered": "Neolithic tools, ancient astronomical calculations carved in stone",
+      "media_urls": ["https://example.com/stonehenge1.jpg", "https://example.com/stonehenge2.jpg"]
+    },
+    {
+      "name": "Athena's Lost Wisdom",
+      "synopsis": "Seek the hidden chamber beneath the Parthenon where Athena's sacred owl guards scrolls containing the goddess's greatest philosophical insights.",
+      "itinerary": "Start at the Acropolis Museum, climb to the Parthenon at golden hour, explore the Erechtheion, and end with a philosophical discussion at the Theatre of Dionysus.",
+      "tags": "Greek mythology, philosophy, ancient wisdom, archaeology",
+      "quest_giver": "Oracle of Modern Delphi",
+      "reward": "Replica of Athena's owl pendant and philosophical manuscript",
+      "companions": "Classical scholars, philosophy students, mythology enthusiasts",
+      "lore_excerpt": "Plato wrote that Athena hid her greatest teachings not in the Academy, but in the very stones of her temple, waiting for worthy seekers.",
+      "artifacts_discovered": "Ancient Greek pottery shards, philosophical papyrus fragments",
+      "media_urls": ["https://example.com/acropolis1.jpg", "https://example.com/acropolis2.jpg"]
+    },
+    {
+      "name": "Gladiator Spirits of the Colosseum",
+      "synopsis": "Experience the echoes of ancient Rome by night, when gladiator spirits are said to reenact their greatest battles in the moonlit arena.",
+      "itinerary": "Begin with underground hypogeum tour, explore the arena floor at sunset, visit the gladiator museum, and conclude with a midnight vigil in the upper tiers.",
+      "tags": "Roman history, gladiators, spirits, ancient combat",
+      "quest_giver": "Maximus the Eternal Gladiator",
+      "reward": "Gladiator's bronze armband and scroll of combat techniques",
+      "companions": "Roman history reenactors, paranormal investigators",
+      "lore_excerpt": "Cassius Dio wrote that the spirits of fallen gladiators would return to fight again when the moon was full, seeking the glory denied them in life.",
+      "artifacts_discovered": "Gladiator helmet fragments, ancient Roman coins",
+      "media_urls": ["https://example.com/colosseum1.jpg", "https://example.com/colosseum2.jpg"]
+    },
+    {
+      "name": "The Pharaoh's Cosmic Key",
+      "synopsis": "Unlock the astronomical secrets of the Great Pyramid, following the path of the pharaoh's soul through the star shafts to achieve immortality.",
+      "itinerary": "Enter the pyramid at dawn, navigate the Grand Gallery, meditate in the King's Chamber during the stellar alignment, and emerge transformed by ancient wisdom.",
+      "tags": "Egyptian mythology, astronomy, pharaohs, immortality",
+      "quest_giver": "High Priest Imhotep",
+      "reward": "Golden ankh amulet and star chart of the ancient sky",
+      "companions": "Egyptologists, astronomers, spiritual seekers",
+      "lore_excerpt": "The pyramid texts speak of the pharaoh's journey through the Duat, the underworld, guided by the stars Orion and Sirius to achieve eternal life among the gods.",
+      "artifacts_discovered": "Hieroglyphic inscriptions, ancient astronomical instruments",
+      "media_urls": ["https://example.com/pyramid1.jpg", "https://example.com/pyramid2.jpg"]
+    }
+  ]
+}
