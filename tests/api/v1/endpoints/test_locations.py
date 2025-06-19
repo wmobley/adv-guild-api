@@ -7,7 +7,7 @@ from types import SimpleNamespace
 from typing import Dict, Any, List # For type hinting
 
 
-client = TestClient(app)
+client = TestClient(app) # Correct: app is a positional argument
 
 def create_mock_location_data() -> Dict[str, Any]: # Line 11
     """Create mock location data matching the actual LocationOut schema"""

@@ -7,7 +7,7 @@ from app.main import app
 from app.db import schemas
 from types import SimpleNamespace
 
-client = TestClient(app)
+client = TestClient(app) # Correct: app is a positional argument
 
 def test_get_campaigns_success(client: TestClient) -> None: # Added client parameter and return type
     # Create real campaign data instead of mocks

@@ -7,7 +7,7 @@ from typing import List, Any # For type hints
 from app.main import app
 from types import SimpleNamespace
 
-client = TestClient(app)
+client = TestClient(app) # Correct: app is a positional argument
 
 def test_get_interests_success(client: TestClient) -> None:
     with patch("app.db.crud.get_interests") as mock_get_interests:
