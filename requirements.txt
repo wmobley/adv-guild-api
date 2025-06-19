@@ -12,3 +12,4 @@ passlib[bcrypt]==1.7.4
 redis==5.0.1
 geoalchemy2==0.14.2
 python-dotenv==1.0.0
+httpx # Required for fastapi.testclient
