@@ -10,7 +10,7 @@ from app.core.security import get_current_user as original_get_current_user # Im
 from typing import Dict, Any, List
 from types import SimpleNamespace
 
-client = TestClient(app)
+client = TestClient(app) # Correct: app is a positional argument
 
 def create_mock_user_data() -> Dict[str, Any]:
     now_utc = datetime.now(timezone.utc) # Create a timezone-aware datetime
