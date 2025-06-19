@@ -6,7 +6,9 @@ from typing import List, Dict, Any # For type hinting
 from app.main import app
 from app.db import schemas
 from types import SimpleNamespace
-
+# The above context assumes there might be a blank line after imports.
+# The key change is removing leading whitespace from the 'client' initialization line.
+# If line 12 in your file is indeed the `client = ...` line and it's indented:
 client = TestClient(app) # Correct: app is a positional argument
 
 def test_get_campaigns_success(client: TestClient) -> None: # Added client parameter and return type

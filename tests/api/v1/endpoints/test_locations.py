@@ -5,10 +5,10 @@ from fastapi.testclient import TestClient
 from app.main import app
 from types import SimpleNamespace
 from typing import Dict, Any, List # For type hinting
-
-
+# The above context assumes there might be a blank line after imports.
+# The key change is removing leading whitespace from the 'client' initialization line.
+# If line 12 in your file is indeed the `client = ...` line and it's indented:
 client = TestClient(app) # Correct: app is a positional argument
-
 def create_mock_location_data() -> Dict[str, Any]: # Line 11
     """Create mock location data matching the actual LocationOut schema"""
     return {
