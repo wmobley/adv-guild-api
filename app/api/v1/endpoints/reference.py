@@ -1,22 +1,32 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from sqlalchemy.exc import SQLAlchemyError  # Add this import
 from app.db.database import get_db
 from app.db import crud, schemas
+from typing import List
 
 router = APIRouter()
 
-
-@router.get("/quest-types", response_model=List[schemas.QuestTypeOut])
-def get_quest_types(db: Session = Depends(get_db)):
-    return crud.get_quest_types(db)
-
+@router.get("/interests", response_model=List[schemas.InterestOut])
+def get_interests(db: Session = Depends(get_db)) -> List[schemas.InterestOut]:
+    try:
+        interests = crud.get_interests(db)
+        return [schemas.InterestOut.model_validate(interest) for interest in interests]
+    except SQLAlchemyError:
+        raise HTTPException(status_code=500, detail="Database error occurred")
 
 @router.get("/difficulties", response_model=List[schemas.DifficultyOut])
-def get_difficulties(db: Session = Depends(get_db)):
-    return crud.get_difficulties(db)
+def get_difficulties(db: Session = Depends(get_db)) -> List[schemas.DifficultyOut]:
+    try:
+        difficulties = crud.get_difficulties(db)
+        return [schemas.DifficultyOut.model_validate(difficulty) for difficulty in difficulties]
+    except SQLAlchemyError:
+        raise HTTPException(status_code=500, detail="Database error occurred")
 
-
-@router.get("/interests", response_model=List[schemas.InterestOut])
-def get_interests(db: Session = Depends(get_db)):
-    return crud.get_interests(db)
+@router.get("/quest-types", response_model=List[schemas.QuestTypeOut])
+def get_quest_types(db: Session = Depends(get_db)) -> List[schemas.QuestTypeOut]:
+    try:
+        quest_types = crud.get_quest_types(db)
+        return [schemas.QuestTypeOut.model_validate(quest_type) for quest_type in quest_types]
+    except SQLAlchemyError:
+        raise HTTPException(status_code=500, detail="Database error occurred")

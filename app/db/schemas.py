@@ -1,31 +1,45 @@
-from pydantic import BaseModel, ConfigDict
-from typing import Optional, List
-from datetime import datetime
+from pydantic import BaseModel, ConfigDict, Field
+
+from typing import List, Optional
+from datetime import datetime, timezone
+
+
+# Base class for all output schemas
+class BaseOutputSchema(BaseModel):
+    # Pydantic V2 uses model_config instead of class Config
+    model_config = ConfigDict(from_attributes=True)
 
 
 # User Schemas
 class UserBase(BaseModel):
-    display_name: str
     email: Optional[str] = None
-    avatar_url: Optional[str] = None
-    guild_rank: Optional[str] = None
+    display_name: Optional[str] = None  # Changed from username to match models.User
+    avatar_url: Optional[str] = None    # Added to match models.User
+    guild_rank: Optional[str] = None    # Added to match models.User
+    # first_name and last_name are not in models.User, so they are removed.
 
 
 class UserCreate(UserBase):
-    pass
+    email: str
+    display_name: str  # Changed from username
 
 
 class UserUpdate(BaseModel):
-    display_name: Optional[str] = None
     email: Optional[str] = None
-    avatar_url: Optional[str] = None
-    guild_rank: Optional[str] = None
+    display_name: Optional[str] = None  # Changed from username
+    avatar_url: Optional[str] = None    # Added
+    guild_rank: Optional[str] = None    # Added
+    # first_name and last_name are not in models.User, so they are removed.
 
 
-class UserOut(UserBase):
+class UserOut(UserBase, BaseOutputSchema):
     id: int
-    created_at: datetime
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc)) # Use default_factory for datetime
+    updated_at: Optional[datetime] = Field(default=None) # Added to match models.User and test data
+    
     model_config = ConfigDict(from_attributes=True)
+
 
 
 class UserLogin(BaseModel):
@@ -40,20 +54,21 @@ class UserResponse(BaseModel):
 
 # Location Schemas
 class LocationBase(BaseModel):
-    latitude: float
-    longitude: float
-    name: Optional[str] = None
-    real_world_inspiration: Optional[str] = None
+    name: str
     description: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    country: Optional[str] = None
 
 
 class LocationCreate(LocationBase):
     pass
 
 
-class LocationOut(LocationBase):
+class LocationOut(LocationBase, BaseOutputSchema):
     id: int
-    model_config = ConfigDict(from_attributes=True)
 
 
 # Reference Data Schemas
@@ -61,45 +76,51 @@ class QuestTypeBase(BaseModel):
     name: str
 
 
-class QuestTypeOut(QuestTypeBase):
+class QuestTypeOut(QuestTypeBase, BaseOutputSchema):
     id: int
-    model_config = ConfigDict(from_attributes=True)
 
 
 class DifficultyBase(BaseModel):
     name: str
 
 
-class DifficultyOut(DifficultyBase):
+class DifficultyOut(DifficultyBase, BaseOutputSchema):
     id: int
-    model_config = ConfigDict(from_attributes=True)
 
 
 class InterestBase(BaseModel):
     name: str
 
 
-class InterestOut(InterestBase):
+class InterestOut(InterestBase, BaseOutputSchema):
     id: int
-    model_config = ConfigDict(from_attributes=True)
 
 
 # Campaign Schemas
 class CampaignBase(BaseModel):
-    title: str
+    title: str  # Changed from name to match models.Campaign and CampaignOut
     description: Optional[str] = None
+    is_public: bool = True
 
-
+class CampaignUpdate(BaseModel): # Don't inherit CampaignBase if you want to make formerly required fields optional
+    title: Optional[str] = None
+    description: Optional[str] = None
+    is_public: Optional[bool] = None # Match field in CampaignBase if this is what's intended for update
+    # is_active is not in CampaignBase or models.Campaign, consider removing or adding to model/Base
+    
 class CampaignCreate(CampaignBase):
     pass
 
 
-class CampaignOut(CampaignBase):
+class CampaignOut(BaseModel):
     id: int
+    title: str
+    description: Optional[str] = None
     author_id: int
     created_at: datetime
-    author: Optional[UserOut] = None
-    model_config = ConfigDict(from_attributes=True)
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True) # Explicitly add config here too
 
 
 # Quest Schemas
@@ -149,20 +170,12 @@ class QuestUpdate(BaseModel):
     campaign_id: Optional[int] = None
 
 
-class QuestOut(QuestBase):
+class QuestOut(QuestBase, BaseOutputSchema):
     id: int
+    author_id: int
     created_at: datetime
-    updated_at: datetime
-    author_id: Optional[int] = None
-    likes: int = 0
-    bookmarks: int = 0
-    author: Optional[UserOut] = None
-    start_location: Optional[LocationOut] = None
-    destination: Optional[LocationOut] = None
-    interest: Optional[InterestOut] = None
-    difficulty: Optional[DifficultyOut] = None
-    quest_type: Optional[QuestTypeOut] = None
-    campaign: Optional[CampaignOut] = None
+    updated_at: Optional[datetime] = None # Should be Optional based on model? Or is onupdate always setting it? Model says nullable=True. Let's make it Optional.
+    
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -183,12 +196,11 @@ class CommentCreate(CommentBase):
     pass
 
 
-class CommentOut(CommentBase):
+class CommentOut(CommentBase, BaseOutputSchema):
     id: int
     author_id: int
     created_at: datetime
     author: Optional[UserOut] = None
-    model_config = ConfigDict(from_attributes=True)
 
 
 # Follow Schemas
@@ -196,14 +208,13 @@ class FollowCreate(BaseModel):
     followee_id: int
 
 
-class FollowOut(BaseModel):
+class FollowOut(BaseOutputSchema):
     id: int
     follower_id: int
     followee_id: int
     created_at: datetime
     follower: Optional[UserOut] = None
     followee: Optional[UserOut] = None
-    model_config = ConfigDict(from_attributes=True)
 
 
 # Achievement Schemas
@@ -213,9 +224,8 @@ class AchievementBase(BaseModel):
     icon_url: Optional[str] = None
 
 
-class AchievementOut(AchievementBase):
+class AchievementOut(AchievementBase, BaseOutputSchema):
     id: int
-    model_config = ConfigDict(from_attributes=True)
 
 
 # Quest Log Entry Schemas
@@ -228,8 +238,7 @@ class QuestLogEntryCreate(QuestLogEntryBase):
     pass
 
 
-class QuestLogEntryOut(QuestLogEntryBase):
+class QuestLogEntryOut(QuestLogEntryBase, BaseOutputSchema):
     id: int
     timestamp: datetime
     location: Optional[LocationOut] = None
-    model_config = ConfigDict(from_attributes=True)

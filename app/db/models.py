@@ -1,7 +1,10 @@
-from sqlalchemy import Column, Integer, String, Text, Float, Boolean, DateTime, ForeignKey, JSON
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Text, Float, Boolean, DateTime, ForeignKey
+from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.orm import DeclarativeBase, relationship
 from sqlalchemy.sql import func
-from app.db.database import Base
+
+class Base(DeclarativeBase):
+    pass
 
 
 class User(Base):
@@ -9,13 +12,14 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     display_name = Column(String(100), nullable=False)
-    email = Column(String(120), unique=True, index=True)
-    avatar_url = Column(String(255))
-    guild_rank = Column(String(50))
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    avatar_url = Column(String(500), nullable=True)
+    guild_rank = Column(String(50), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    authored_quests = relationship("Quest", back_populates="author")
+    authored_quests = relationship("Quest", back_populates="author", foreign_keys="Quest.author_id")
     authored_campaigns = relationship("Campaign", back_populates="author")
     comments = relationship("Comment", back_populates="author")
     following = relationship("Follow", foreign_keys="Follow.follower_id", back_populates="follower")
@@ -26,7 +30,7 @@ class QuestType(Base):
     __tablename__ = "quest_types"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(50), nullable=False, unique=True)
+    name = Column(String(100), unique=True, nullable=False)
 
     quests = relationship("Quest", back_populates="quest_type")
 
@@ -35,7 +39,7 @@ class Difficulty(Base):
     __tablename__ = "difficulties"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(50), nullable=False, unique=True)
+    name = Column(String(100), unique=True, nullable=False)
 
     quests = relationship("Quest", back_populates="difficulty")
 
@@ -44,7 +48,7 @@ class Interest(Base):
     __tablename__ = "interests"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(50), nullable=False, unique=True)
+    name = Column(String(100), unique=True, nullable=False)
 
     quests = relationship("Quest", back_populates="interest")
 
@@ -55,13 +59,13 @@ class Location(Base):
     id = Column(Integer, primary_key=True, index=True)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
-    name = Column(String(100))
-    real_world_inspiration = Column(String(200))
-    description = Column(Text)
+    name = Column(String(200), nullable=False)
+    real_world_inspiration = Column(String(300), nullable=True)
+    description = Column(Text, nullable=True)
 
     # Relationships
-    quests_starting_here = relationship("Quest", foreign_keys="Quest.start_location_id", back_populates="start_location")
-    quests_ending_here = relationship("Quest", foreign_keys="Quest.destination_id", back_populates="destination")
+    start_quests = relationship("Quest", back_populates="start_location", foreign_keys="Quest.start_location_id")
+    destination_quests = relationship("Quest", back_populates="destination", foreign_keys="Quest.destination_id")
     quest_log_entries = relationship("QuestLogEntry", back_populates="location")
 
 
@@ -70,9 +74,11 @@ class Campaign(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(200), nullable=False)
-    description = Column(Text)
+    description = Column(Text, nullable=True)
+    is_active = Column(Boolean, default=True, nullable=False)
     author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
     author = relationship("User", back_populates="authored_campaigns")
@@ -84,33 +90,33 @@ class Quest(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(200), nullable=False)
-    synopsis = Column(Text, nullable=False)
-    start_location_id = Column(Integer, ForeignKey("locations.id"), nullable=False)
-    destination_id = Column(Integer, ForeignKey("locations.id"))
-    interest_id = Column(Integer, ForeignKey("interests.id"), nullable=False)
-    itinerary = Column(Text, nullable=False)  # JSON string
-    difficulty_id = Column(Integer, ForeignKey("difficulties.id"), nullable=False)
-    is_public = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-    quest_type_id = Column(Integer, ForeignKey("quest_types.id"), nullable=False)
-    tags = Column(String(500))
-    quest_giver = Column(String(100))
-    reward = Column(String(500))
-    companions = Column(String(500))
-    lore_excerpt = Column(Text)
-    artifacts_discovered = Column(String(500))
+    synopsis = Column(Text, nullable=True)
+    start_location_id = Column(Integer, ForeignKey("locations.id"), nullable=True)
+    destination_id = Column(Integer, ForeignKey("locations.id"), nullable=True)
+    interest_id = Column(Integer, ForeignKey("interests.id"), nullable=True)
+    itinerary = Column(Text, nullable=True)  # JSON string
+    difficulty_id = Column(Integer, ForeignKey("difficulties.id"), nullable=True)
+    is_public = Column(Boolean, default=True)
+    quest_type_id = Column(Integer, ForeignKey("quest_types.id"), nullable=True)
+    tags = Column(String(500), nullable=True)
+    quest_giver = Column(String(200), nullable=True)
+    reward = Column(String(500), nullable=True)
+    companions = Column(String(500), nullable=True)
+    lore_excerpt = Column(Text, nullable=True)
+    artifacts_discovered = Column(String(500), nullable=True)
     completed = Column(Boolean, default=False)
-    author_id = Column(Integer, ForeignKey("users.id"))
-    media_urls = Column(JSON)  # Array of strings
+    author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    media_urls = Column(JSON, nullable=True)  # Array of strings
     likes = Column(Integer, default=0)
     bookmarks = Column(Integer, default=0)
-    campaign_id = Column(Integer, ForeignKey("campaigns.id"))
+    campaign_id = Column(Integer, ForeignKey("campaigns.id"), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     # Relationships
-    author = relationship("User", back_populates="authored_quests")
-    start_location = relationship("Location", foreign_keys=[start_location_id], back_populates="quests_starting_here")
-    destination = relationship("Location", foreign_keys=[destination_id], back_populates="quests_ending_here")
+    author = relationship("User", back_populates="authored_quests", foreign_keys=[author_id])
+    start_location = relationship("Location", back_populates="start_quests", foreign_keys=[start_location_id])
+    destination = relationship("Location", back_populates="destination_quests", foreign_keys=[destination_id])
     interest = relationship("Interest", back_populates="quests")
     difficulty = relationship("Difficulty", back_populates="quests")
     quest_type = relationship("QuestType", back_populates="quests")
