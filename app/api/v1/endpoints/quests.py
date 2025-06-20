@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.db.database import get_db
-from app.db import crud, schemas
+from app.db import crud_quests, schemas # Changed
 from app.core.security import get_current_user
 from typing import List, Optional, Any, Dict
 
@@ -16,23 +16,16 @@ def get_quests(
     quest_type_id: Optional[int] = Query(None),
     is_public: Optional[bool] = Query(None),
     db: Session = Depends(get_db)
-) -> List[schemas.QuestOut]:
-    filters = {}
-    if difficulty_id is not None:
-        filters['difficulty_id'] = difficulty_id
-    if interest_id is not None:
-        filters['interest_id'] = interest_id
-    if quest_type_id is not None:
-        filters['quest_type_id'] = quest_type_id
-    if is_public is not None:
-        filters['is_public'] = is_public
-    
-    quests = crud.get_quests(db, skip=skip, limit=limit, **filters)
+) -> List[schemas.QuestOut]:    
+    quests = crud_quests.get_quests(
+        db, skip=skip, limit=limit, difficulty_id=difficulty_id,
+        interest_id=interest_id, quest_type_id=quest_type_id, is_public=is_public
+    )
     return [schemas.QuestOut.model_validate(quest) for quest in quests]
 
 @router.get("/{quest_id}", response_model=schemas.QuestOut)
 def get_quest(quest_id: int, db: Session = Depends(get_db)) -> schemas.QuestOut:
-    quest = crud.get_quest(db, quest_id=quest_id)
+    quest = crud_quests.get_quest(db, quest_id=quest_id) # Changed
     if not quest:
         raise HTTPException(status_code=404, detail="Quest not found")
     return schemas.QuestOut.model_validate(quest)
@@ -43,7 +36,7 @@ def create_quest(
     current_user: schemas.UserOut = Depends(get_current_user),
     db: Session = Depends(get_db)
 ) -> schemas.QuestOut:
-    quest = crud.create_quest(db, quest_data, current_user.id)
+    quest = crud_quests.create_quest(db, quest_data, current_user.id) # Changed
     return schemas.QuestOut.model_validate(quest)
 
 @router.put("/{quest_id}", response_model=schemas.QuestOut)
@@ -53,7 +46,7 @@ def update_quest(
     current_user: schemas.UserOut = Depends(get_current_user),  # Now this should work
     db: Session = Depends(get_db)
 ) -> Any:
-    quest = crud.get_quest(db, quest_id=quest_id)
+    quest = crud_quests.get_quest(db, quest_id=quest_id) # Changed
     if not quest:
         raise HTTPException(status_code=404, detail="Quest not found")
     
@@ -61,12 +54,12 @@ def update_quest(
     if quest.author_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
-    updated_quest = crud.update_quest(db, quest_id=quest_id, quest_data=quest_data)
+    updated_quest = crud_quests.update_quest(db, db_quest=quest, quest_in=quest_data)
     return updated_quest
 
 @router.post("/{quest_id}/like", response_model=schemas.QuestOut)
 def like_quest(quest_id: int, db: Session = Depends(get_db)) -> Any:
-    quest = crud.like_quest(db, quest_id=quest_id)
+    quest = crud_quests.like_quest(db, quest_id=quest_id) # Changed
     if not quest:
         raise HTTPException(status_code=404, detail="Quest not found")
     return quest
@@ -77,7 +70,14 @@ def bookmark_quest(
     current_user: schemas.UserOut = Depends(get_current_user),
     db: Session = Depends(get_db)
 ) -> Dict[str, Any]:
-    quest = crud.bookmark_quest(db, quest_id=quest_id)
-    if not quest:
+    # Check if already bookmarked
+    existing_bookmark = crud_quests.get_quest_bookmark_by_user_and_quest(db, user_id=current_user.id, quest_id=quest_id)
+    
+    if existing_bookmark:
+        updated_quest = crud_quests.remove_quest_bookmark_for_user(db, user_id=current_user.id, quest_id=quest_id)
+    else:
+        updated_quest = crud_quests.add_quest_bookmark_for_user(db, user_id=current_user.id, quest_id=quest_id)
+    
+    if not updated_quest:
         raise HTTPException(status_code=404, detail="Quest not found")
-    return {"bookmarks": quest.bookmarks}
+    return {"bookmarks": updated_quest.bookmarks, "user_bookmarked": not existing_bookmark}

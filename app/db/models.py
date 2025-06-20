@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Float, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, Float, Boolean, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import DeclarativeBase, relationship
 from sqlalchemy.sql import func
@@ -13,6 +13,8 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     display_name = Column(String(100), nullable=False)
     email = Column(String(255), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
     avatar_url = Column(String(500), nullable=True)
     guild_rank = Column(String(50), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -23,6 +25,7 @@ class User(Base):
     authored_campaigns = relationship("Campaign", back_populates="author")
     comments = relationship("Comment", back_populates="author")
     following = relationship("Follow", foreign_keys="Follow.follower_id", back_populates="follower")
+    # quest_bookmarks relationship will be added below
     followers = relationship("Follow", foreign_keys="Follow.followee_id", back_populates="followee")
 
 
@@ -61,6 +64,9 @@ class Location(Base):
     longitude = Column(Float, nullable=False)
     name = Column(String(200), nullable=False)
     real_world_inspiration = Column(String(300), nullable=True)
+    address = Column(String(500), nullable=True)
+    city = Column(String(100), nullable=True)
+    country = Column(String(100), nullable=True)
     description = Column(Text, nullable=True)
 
     # Relationships
@@ -75,7 +81,7 @@ class Campaign(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(200), nullable=False)
     description = Column(Text, nullable=True)
-    is_active = Column(Boolean, default=True, nullable=False)
+    is_public = Column(Boolean, default=True, nullable=False)
     author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -121,6 +127,7 @@ class Quest(Base):
     difficulty = relationship("Difficulty", back_populates="quests")
     quest_type = relationship("QuestType", back_populates="quests")
     campaign = relationship("Campaign", back_populates="quests")
+    # user_bookmarks relationship will be added below
     comments = relationship("Comment", back_populates="quest")
 
 
@@ -151,6 +158,22 @@ class Comment(Base):
     quest = relationship("Quest", back_populates="comments")
 
 
+class UserQuestBookmark(Base):
+    __tablename__ = "user_quest_bookmarks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    quest_id = Column(Integer, ForeignKey("quests.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    user = relationship("User", back_populates="quest_bookmarks")
+    quest = relationship("Quest", back_populates="user_bookmarks")
+
+    # Add unique constraint to ensure a user can bookmark a quest only once
+    __table_args__ = (UniqueConstraint('user_id', 'quest_id', name='uq_user_quest_bookmark'),)
+
+
 class Achievement(Base):
     __tablename__ = "achievements"
 
@@ -170,3 +193,14 @@ class QuestLogEntry(Base):
 
     # Relationships
     location = relationship("Location", back_populates="quest_log_entries")
+
+
+# Update User and Quest models with relationships to UserQuestBookmark
+User.quest_bookmarks = relationship("UserQuestBookmark", back_populates="user", cascade="all, delete-orphan")
+Quest.user_bookmarks = relationship("UserQuestBookmark", back_populates="quest", cascade="all, delete-orphan")
+
+# Note regarding Quest.bookmarks column:
+# The existing `Quest.bookmarks = Column(Integer, default=0)` is a simple counter.
+# With the `UserQuestBookmark` table, this integer column can serve as a denormalized count
+# for quick lookups, but you'll need to implement logic to keep it synchronized (e.g., using event listeners or application logic).
+# Alternatively, you could remove this column and derive the count from `len(quest.user_bookmarks)` or a database query.

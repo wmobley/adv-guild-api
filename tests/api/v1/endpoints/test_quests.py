@@ -67,7 +67,9 @@ def create_mock_quest_data() -> Dict[str, Any]:
             "id": 1,
             "title": "Test Campaign",
             "description": "A test campaign",
-            "author_id": 1
+            "author_id": 1,
+            "is_public": True,
+            "created_at": datetime.now()
         }
     }
 
@@ -87,7 +89,7 @@ def create_mock_quest_object(quest_data: Dict[str, Any]) -> SimpleNamespace:
     return mock_quest
 
 # Update your test functions to use proper mock data
-@patch('app.db.crud.get_quests')
+@patch('app.db.crud_quests.get_quests')
 def test_get_quests_success(mock_get_quests: Mock, client: TestClient) -> None:
     mock_quest_data = create_mock_quest_data()
     mock_quest = create_mock_quest_object(mock_quest_data)
@@ -102,19 +104,10 @@ def test_get_quests_success(mock_get_quests: Mock, client: TestClient) -> None:
     assert data[0]["id"] == 1
     assert data[0]["name"] == "Test Quest"
 
-@patch('app.db.crud.get_quests')
+@patch('app.db.crud_quests.get_quests')
 def test_get_quests_with_filters(mock_get_quests: Mock, client: TestClient) -> None:
     mock_quest_data = create_mock_quest_data()
-    mock_quest = SimpleNamespace(**mock_quest_data)
-    
-    # Set up nested objects
-    mock_quest.author = SimpleNamespace(**mock_quest_data["author"])
-    mock_quest.start_location = SimpleNamespace(**mock_quest_data["start_location"])
-    mock_quest.destination = SimpleNamespace(**mock_quest_data["destination"])
-    mock_quest.interest = SimpleNamespace(**mock_quest_data["interest"])
-    mock_quest.difficulty = SimpleNamespace(**mock_quest_data["difficulty"])
-    mock_quest.quest_type = SimpleNamespace(**mock_quest_data["quest_type"])
-    mock_quest.campaign = SimpleNamespace(**mock_quest_data["campaign"])
+    mock_quest = create_mock_quest_object(mock_quest_data)
     
     mock_get_quests.return_value = [mock_quest]
     
@@ -124,7 +117,7 @@ def test_get_quests_with_filters(mock_get_quests: Mock, client: TestClient) -> N
     data = response.json()
     assert len(data) == 1
 
-@patch('app.db.crud.get_quests')
+@patch('app.db.crud_quests.get_quests')
 def test_get_quests_pagination(mock_get_quests: Mock, client: TestClient) -> None:
     # Create multiple mock quests
     mock_quests = []
@@ -132,16 +125,7 @@ def test_get_quests_pagination(mock_get_quests: Mock, client: TestClient) -> Non
         mock_quest_data = create_mock_quest_data()
         mock_quest_data["id"] = i + 1
         mock_quest_data["name"] = f"Test Quest {i + 1}"
-        
-        mock_quest = SimpleNamespace(**mock_quest_data)
-        mock_quest.author = SimpleNamespace(**mock_quest_data["author"])
-        mock_quest.start_location = SimpleNamespace(**mock_quest_data["start_location"])
-        mock_quest.destination = SimpleNamespace(**mock_quest_data["destination"])
-        mock_quest.interest = SimpleNamespace(**mock_quest_data["interest"])
-        mock_quest.difficulty = SimpleNamespace(**mock_quest_data["difficulty"])
-        mock_quest.quest_type = SimpleNamespace(**mock_quest_data["quest_type"])
-        mock_quest.campaign = SimpleNamespace(**mock_quest_data["campaign"])
-        
+        mock_quest = create_mock_quest_object(mock_quest_data)
         mock_quests.append(mock_quest)
     
     mock_get_quests.return_value = mock_quests[:2]  # Return first 2 for pagination
@@ -152,7 +136,7 @@ def test_get_quests_pagination(mock_get_quests: Mock, client: TestClient) -> Non
     data = response.json()
     assert len(data) == 2
 
-@patch('app.db.crud.get_quests')
+@patch('app.db.crud_quests.get_quests')
 def test_get_quests_empty(mock_get_quests: Mock, client: TestClient) -> None:
     mock_get_quests.return_value = []
     

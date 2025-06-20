@@ -2,27 +2,23 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.db.database import get_db
-from app.db import crud, schemas
+from app.db import crud_users, schemas
 from app.core.security import create_access_token, verify_password, get_password_hash
-from typing import List, Any, Optional, Dict  # Add Dict if needed
+from app.db.models import User # Import User model for type hinting
+from typing import List, Any, Optional, Dict
 
 
 router = APIRouter()
 
 
-def authenticate_user(db: Session, email: str, password: str) -> schemas.UserOut | None:
+def authenticate_user(db: Session, email: str, password: str) -> User | None:
     """Authenticate a user by email and password"""
-    user = crud.get_user_by_email(db, email=email)
+    user = crud_users.get_user_by_email(db, email=email)
     if not user:
         return None
-    
-    # If you have password field in your user model:
-    # if not verify_password(password, user.hashed_password):
-    #     return None
-    
-    # For now, since your schema doesn't seem to have passwords,
-    # we'll just return the user (THIS IS NOT SECURE - implement passwords!)
-    return schemas.UserOut.model_validate(user)
+    if not verify_password(password, user.hashed_password):  # type: ignore[arg-type]
+        return None
+    return user
 
 
 @router.post("/register", response_model=schemas.UserResponse)
@@ -30,16 +26,14 @@ def register(
     user_data: schemas.UserCreate,
     db: Session = Depends(get_db)
 ) -> schemas.UserResponse:
-    # Check if user already exists
-    if user_data.email:
-        existing_user = crud.get_user_by_email(db, email=user_data.email)
-        if existing_user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email already registered"
-            )
+    existing_user = crud_users.get_user_by_email(db, email=user_data.email)
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered"
+        )
     
-    user = crud.create_user(db, user_data)
+    user = crud_users.create_user(db, user_data)
     access_token = create_access_token(data={"sub": user.email or str(user.id)})
     user_out = schemas.UserOut.model_validate(user)
     return schemas.UserResponse(
@@ -62,8 +56,9 @@ def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = create_access_token(data={"sub": user.email or str(user.id)})
+    user_out = schemas.UserOut.model_validate(user)
     return schemas.UserResponse(
-        user=user,
+        user=user_out,
         access_token=access_token,
         token_type="bearer"
     )
@@ -76,7 +71,7 @@ def login_email(
     db: Session = Depends(get_db)
 ) -> schemas.UserResponse:
     """Simple email-only login for development purposes"""
-    user = crud.get_user_by_email(db, email=user_login.email)
+    user = crud_users.get_user_by_email(db, email=user_login.email) # Changed
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

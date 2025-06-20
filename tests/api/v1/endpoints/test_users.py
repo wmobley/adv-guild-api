@@ -42,7 +42,7 @@ def create_mock_user_object_for_orm() -> SimpleNamespace:
     )
     return mock_user
 
-@patch('app.db.crud.get_user')
+@patch('app.db.crud_users.get_user')
 def test_get_user_success(mock_get_user: Mock, client: TestClient) -> None:  # Use Mock instead of patch
     # Create mock user with all required fields
     mock_user_data = create_mock_user_data()
@@ -58,7 +58,7 @@ def test_get_user_success(mock_get_user: Mock, client: TestClient) -> None:  # U
     assert data["display_name"] == "Test User"  # Use display_name
     assert data["email"] == "test@example.com"
 
-@patch('app.db.crud.get_users')
+@patch('app.db.crud_users.get_users')
 def test_get_users_success(mock_get_users: Mock, client: TestClient) -> None:  # Use Mock instead of patch
     # Create multiple mock users
     mock_users = []
@@ -100,7 +100,7 @@ def test_get_current_user_info(client: TestClient) -> None:
         app.dependency_overrides.clear() # Clear overrides after the test
 
 
-@patch('app.api.v1.endpoints.users.crud.update_user') # Patch crud where it's used by the endpoint
+@patch('app.db.crud_users.update_user') # Patch crud where it's used by the endpoint
 def test_update_current_user(mock_crud_update_user: Mock, client: TestClient) -> None:  # Use Mock instead of patch
     # Mock current user
     # get_current_user returns an ORM-like object, FastAPI converts it to schemas.UserOut
@@ -135,7 +135,7 @@ def test_update_current_user(mock_crud_update_user: Mock, client: TestClient) ->
         app.dependency_overrides.clear() # Clear overrides after the test
 
 def test_get_user_not_found(client: TestClient) -> None: # Added type annotation
-    with patch("app.db.crud.get_user") as mock_get_user:
+    with patch("app.db.crud_users.get_user") as mock_get_user:
         mock_get_user.return_value = None
         
         response = client.get("/api/v1/users/999")

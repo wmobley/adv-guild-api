@@ -11,7 +11,7 @@ from types import SimpleNamespace
 # If line 12 in your file is indeed the `client = ...` line and it's indented:
 client = TestClient(app) # Correct: app is a positional argument
 def test_get_interests_success(client: TestClient) -> None:
-    with patch("app.db.crud.get_interests") as mock_get_interests:
+    with patch("app.db.crud_reference_data.get_interests") as mock_get_interests:
         interest1 = SimpleNamespace(
             id=1,
             name='Test Interest 1',
@@ -39,7 +39,7 @@ def test_get_interests_success(client: TestClient) -> None:
         assert data[1]["name"] == "Test Interest 2"
 
 def test_get_interests_empty(client: TestClient) -> None:
-    with patch("app.db.crud.get_interests") as mock_get_interests:
+    with patch("app.db.crud_reference_data.get_interests") as mock_get_interests:
         mock_get_interests.return_value = []
         
         response = client.get("/api/v1/reference/interests")
@@ -48,7 +48,7 @@ def test_get_interests_empty(client: TestClient) -> None:
         data = response.json()
         assert len(data) == 0
 
-@patch('app.db.crud.get_interests')
+@patch('app.db.crud_reference_data.get_interests')
 def test_get_interests_db_error(mock_get_interests: Mock, client: TestClient) -> None: # Changed type hint to Mock
     mock_get_interests.side_effect = SQLAlchemyError("Database connection failed")
     

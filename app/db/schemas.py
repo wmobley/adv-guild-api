@@ -22,6 +22,7 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     email: str
     display_name: str  # Changed from username
+    password: str
 
 
 class UserUpdate(BaseModel):
@@ -29,6 +30,7 @@ class UserUpdate(BaseModel):
     display_name: Optional[str] = None  # Changed from username
     avatar_url: Optional[str] = None    # Added
     guild_rank: Optional[str] = None    # Added
+    password: Optional[str] = None      # Added for password updates
     # first_name and last_name are not in models.User, so they are removed.
 
 
@@ -56,8 +58,8 @@ class UserResponse(BaseModel):
 class LocationBase(BaseModel):
     name: str
     description: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
+    latitude: float
+    longitude: float
     address: Optional[str] = None
     city: Optional[str] = None
     country: Optional[str] = None
@@ -65,6 +67,16 @@ class LocationBase(BaseModel):
 
 class LocationCreate(LocationBase):
     pass
+
+
+class LocationUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    country: Optional[str] = None
 
 
 class LocationOut(LocationBase, BaseOutputSchema):
@@ -102,11 +114,10 @@ class CampaignBase(BaseModel):
     description: Optional[str] = None
     is_public: bool = True
 
-class CampaignUpdate(BaseModel): # Don't inherit CampaignBase if you want to make formerly required fields optional
+class CampaignUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
-    is_public: Optional[bool] = None # Match field in CampaignBase if this is what's intended for update
-    # is_active is not in CampaignBase or models.Campaign, consider removing or adding to model/Base
+    is_public: Optional[bool] = None
     
 class CampaignCreate(CampaignBase):
     pass
@@ -116,9 +127,10 @@ class CampaignOut(BaseModel):
     id: int
     title: str
     description: Optional[str] = None
+    is_public: bool
     author_id: int
     created_at: datetime
-    updated_at: datetime
+    updated_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True) # Explicitly add config here too
 
@@ -175,6 +187,13 @@ class QuestOut(QuestBase, BaseOutputSchema):
     author_id: int
     created_at: datetime
     updated_at: Optional[datetime] = None # Should be Optional based on model? Or is onupdate always setting it? Model says nullable=True. Let's make it Optional.
+    author: Optional[UserOut] = None
+    start_location: Optional[LocationOut] = None
+    destination: Optional[LocationOut] = None
+    interest: Optional[InterestOut] = None
+    difficulty: Optional[DifficultyOut] = None
+    quest_type: Optional[QuestTypeOut] = None
+    campaign: Optional[CampaignOut] = None
     
     model_config = ConfigDict(from_attributes=True)
 
