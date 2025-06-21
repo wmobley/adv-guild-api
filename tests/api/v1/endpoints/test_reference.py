@@ -9,7 +9,6 @@ from types import SimpleNamespace
 # The above context assumes there might be a blank line after imports.
 # The key change is removing leading whitespace from the 'client' initialization line.
 # If line 12 in your file is indeed the `client = ...` line and it's indented:
-client = TestClient(app) # Correct: app is a positional argument
 def test_get_interests_success(client: TestClient) -> None:
     with patch("app.db.crud_reference_data.get_interests") as mock_get_interests:
         interest1 = SimpleNamespace(
