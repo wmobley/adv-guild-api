@@ -10,6 +10,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-quest_db}
       POSTGRES_USER: ${POSTGRES_USER:-quest_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-quest_password}
+      POSTGRES_DB_TEST: ${POSTGRES_DB_TEST:-quest_db_test}
     volumes:
       - ./scripts/init-test-db.sh:/docker-entrypoint-initdb.d/init-test-db.sh
       - postgres_data:/var/lib/postgresql/data
@@ -76,6 +77,8 @@ services:
       - PYTHONPATH=/app
       # Use the test database URL, pointing to the 'db' service
       - DATABASE_URL=postgresql://${POSTGRES_USER:-quest_user}:${POSTGRES_PASSWORD:-quest_password}@db:5432/${POSTGRES_DB_TEST:-quest_db_test}
+      # Explicitly disable loading of a .env file in the test environment
+      - ENV_FILE=
     # Run pytest command
     command: ["python", "-m", "pytest"]
     # Ensure database is healthy before running tests
