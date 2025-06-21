@@ -1,80 +1,70 @@
-from datetime import datetime, timedelta
-from typing import Optional, Union, Dict, Any
-from app.db.models import User
-import jwt
+from datetime import datetime, timedelta, timezone
+from typing import Optional
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import HTTPException, status, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.db import crud_users, models
 from app.db.database import get_db
-from app.db import crud_users, schemas
 
+# Use passlib for password hashing, which is more convenient and type-safe
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-security = HTTPBearer()
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login")
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password: str) -> str:
+    """This now correctly returns a string, resolving the first mypy error."""
+    return pwd_context.hash(password)
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    
+        expire = datetime.now(timezone.utc) + timedelta(
+            minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES
+        )
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+    encoded_jwt: str = jwt.encode(
+        to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
+    )
     return encoded_jwt
 
 
-def verify_token(token: str) -> Optional[Dict[str, Any]]:
+def get_current_user(
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+) -> models.User:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     try:
-        payload: Dict[str, Any] = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
-        return payload
-    except jwt.PyJWTError:
-        return None
-
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    result: bool = pwd_context.verify(plain_password, hashed_password)
-    return result
-
-
-def get_password_hash(password: str) -> str:
-    hashed: str = pwd_context.hash(password)
-    return hashed
-
-
-# Update import for your actual User model if needed, e.g., from app.db.models import User as DBUser
-async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db)
-) -> User: # Changed to your actual User model, e.g., DBUser. Use string literal to avoid circular import issue.
-    """Get the current authenticated user."""
-    token = credentials.credentials
-    
-    try:
-        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
-        user_id: int = payload.get("sub")
-        if user_id is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not validate credentials",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-    except jwt.PyJWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
+        payload = jwt.decode(
+            token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
-    
-    user = crud_users.get_user(db, user_id=user_id)
+        email: str | None = payload.get("sub")
+        expire_from_payload = payload.get("exp")
+
+        if not isinstance(email, str) or not isinstance(expire_from_payload, int):
+            raise credentials_exception
+
+        if datetime.fromtimestamp(expire_from_payload, tz=timezone.utc) < datetime.now(timezone.utc):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
+    except (JWTError, ValidationError):
+        raise credentials_exception
+    user = crud_users.get_user_by_email(db, email=email)
     if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
+        raise credentials_exception
     return user

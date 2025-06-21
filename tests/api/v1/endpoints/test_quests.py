@@ -87,13 +87,13 @@ def create_mock_quest_object(quest_data: Dict[str, Any]) -> SimpleNamespace:
 
 # Update your test functions to use proper mock data
 @patch('app.db.crud_quests.get_quests')
-def test_get_quests_success(mock_get_quests: Mock, client: TestClient) -> None:
+def test_get_quests_success(mock_get_quests: Mock, api_client: TestClient) -> None:
     mock_quest_data = create_mock_quest_data()
     mock_quest = create_mock_quest_object(mock_quest_data)
     
     mock_get_quests.return_value = [mock_quest]
     
-    response = client.get("/api/v1/quests/")
+    response = api_client.get("/api/v1/quests/")
     
     assert response.status_code == 200
     data = response.json()
@@ -102,20 +102,20 @@ def test_get_quests_success(mock_get_quests: Mock, client: TestClient) -> None:
     assert data[0]["name"] == "Test Quest"
 
 @patch('app.db.crud_quests.get_quests')
-def test_get_quests_with_filters(mock_get_quests: Mock, client: TestClient) -> None:
+def test_get_quests_with_filters(mock_get_quests: Mock, api_client: TestClient) -> None:
     mock_quest_data = create_mock_quest_data()
     mock_quest = create_mock_quest_object(mock_quest_data)
     
     mock_get_quests.return_value = [mock_quest]
     
-    response = client.get("/api/v1/quests/?difficulty_id=1&quest_type_id=1")
+    response = api_client.get("/api/v1/quests/?difficulty_id=1&quest_type_id=1")
     
     assert response.status_code == 200
     data = response.json()
     assert len(data) == 1
 
 @patch('app.db.crud_quests.get_quests')
-def test_get_quests_pagination(mock_get_quests: Mock, client: TestClient) -> None:
+def test_get_quests_pagination(mock_get_quests: Mock, api_client: TestClient) -> None:
     # Create multiple mock quests
     mock_quests = []
     for i in range(3):
@@ -127,17 +127,17 @@ def test_get_quests_pagination(mock_get_quests: Mock, client: TestClient) -> Non
     
     mock_get_quests.return_value = mock_quests[:2]  # Return first 2 for pagination
     
-    response = client.get("/api/v1/quests/?skip=0&limit=2")
+    response = api_client.get("/api/v1/quests/?skip=0&limit=2")
     
     assert response.status_code == 200
     data = response.json()
     assert len(data) == 2
 
 @patch('app.db.crud_quests.get_quests')
-def test_get_quests_empty(mock_get_quests: Mock, client: TestClient) -> None:
+def test_get_quests_empty(mock_get_quests: Mock, api_client: TestClient) -> None:
     mock_get_quests.return_value = []
     
-    response = client.get("/api/v1/quests/")
+    response = api_client.get("/api/v1/quests/")
     
     assert response.status_code == 200
     data = response.json()

@@ -9,7 +9,7 @@ from types import SimpleNamespace
 # The above context assumes there might be a blank line after imports.
 # The key change is removing leading whitespace from the 'client' initialization line.
 # If line 12 in your file is indeed the `client = ...` line and it's indented:
-def test_get_interests_success(client: TestClient) -> None:
+def test_get_interests_success(api_client: TestClient) -> None:
     with patch("app.db.crud_reference_data.get_interests") as mock_get_interests:
         interest1 = SimpleNamespace(
             id=1,
@@ -29,7 +29,7 @@ def test_get_interests_success(client: TestClient) -> None:
         
         mock_get_interests.return_value = [interest1, interest2]
         
-        response = client.get("/api/v1/reference/interests")
+        response = api_client.get("/api/v1/reference/interests")
         
         assert response.status_code == 200
         data = response.json()
@@ -37,21 +37,21 @@ def test_get_interests_success(client: TestClient) -> None:
         assert data[0]["name"] == "Test Interest 1"
         assert data[1]["name"] == "Test Interest 2"
 
-def test_get_interests_empty(client: TestClient) -> None:
+def test_get_interests_empty(api_client: TestClient) -> None:
     with patch("app.db.crud_reference_data.get_interests") as mock_get_interests:
         mock_get_interests.return_value = []
         
-        response = client.get("/api/v1/reference/interests")
+        response = api_client.get("/api/v1/reference/interests")
         
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 0
 
 @patch('app.db.crud_reference_data.get_interests')
-def test_get_interests_db_error(mock_get_interests: Mock, client: TestClient) -> None: # Changed type hint to Mock
+def test_get_interests_db_error(mock_get_interests: Mock, api_client: TestClient) -> None: # Changed type hint to Mock
     mock_get_interests.side_effect = SQLAlchemyError("Database connection failed")
     
-    response = client.get("/api/v1/reference/interests")
+    response = api_client.get("/api/v1/reference/interests")
     
     # Expect 500 error when database fails
     assert response.status_code == 500

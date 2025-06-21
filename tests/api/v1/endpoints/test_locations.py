@@ -22,7 +22,7 @@ def create_mock_location_data() -> Dict[str, Any]: # Line 11
     }
 
 @patch('app.db.crud_locations.get_locations')
-def test_get_locations_success(mock_get_locations: Mock, client: TestClient) -> None: # Line 23
+def test_get_locations_success(mock_get_locations: Mock, api_client: TestClient) -> None: # Line 23
     # Create mock locations with all required fields
     mock_locations = []
     for i in range(3):
@@ -37,7 +37,7 @@ def test_get_locations_success(mock_get_locations: Mock, client: TestClient) -> 
     
     mock_get_locations.return_value = mock_locations
     
-    response = client.get("/api/v1/locations/")
+    response = api_client.get("/api/v1/locations/")
     
     assert response.status_code == 200
     data = response.json()
@@ -50,10 +50,10 @@ def test_get_locations_success(mock_get_locations: Mock, client: TestClient) -> 
     # assert "created_at" in data[0]
 
 @patch('app.db.crud_locations.get_locations')
-def test_get_locations_empty(mock_get_all_locations: Mock, client: TestClient) -> None: # Renamed test and mock
+def test_get_locations_empty(mock_get_all_locations: Mock, api_client: TestClient) -> None: # Renamed test and mock
     mock_get_all_locations.return_value = []
     
-    response = client.get("/api/v1/locations/")
+    response = api_client.get("/api/v1/locations/")
     
     assert response.status_code == 200
     data = response.json()
@@ -62,12 +62,12 @@ def test_get_locations_empty(mock_get_all_locations: Mock, client: TestClient) -
 
 # Test for getting a single location successfully
 @patch('app.db.crud_locations.get_location')
-def test_get_single_location_success(mock_crud_get_location: Mock, client: TestClient) -> None:
+def test_get_single_location_success(mock_crud_get_location: Mock, api_client: TestClient) -> None:
     mock_location_data = create_mock_location_data()
     mock_location_orm = SimpleNamespace(**mock_location_data)
     mock_crud_get_location.return_value = mock_location_orm
 
-    response = client.get(f"/api/v1/locations/{mock_location_data['id']}")
+    response = api_client.get(f"/api/v1/locations/{mock_location_data['id']}")
     assert response.status_code == 200
     data = response.json()
     assert data["id"] == mock_location_data["id"]
@@ -75,7 +75,7 @@ def test_get_single_location_success(mock_crud_get_location: Mock, client: TestC
 
 @patch('app.db.crud_locations.get_location')
 @patch('app.db.crud_locations.create_location') # Add patch for create_location
-def test_create_location_success(mock_crud_create_location: Mock, mock_crud_get_location: Mock, client: TestClient) -> None:
+def test_create_location_success(mock_crud_create_location: Mock, mock_crud_get_location: Mock, api_client: TestClient) -> None:
     mock_user = create_mock_user_object_for_orm()
     app.dependency_overrides[get_current_user] = lambda: mock_user
 
@@ -95,7 +95,7 @@ def test_create_location_success(mock_crud_create_location: Mock, mock_crud_get_
             "latitude": mock_location_data["latitude"],
             "longitude": mock_location_data["longitude"],
         }
-        response = client.post("/api/v1/locations/", json=payload, headers={"Authorization": "Bearer testtoken"})
+        response = api_client.post("/api/v1/locations/", json=payload, headers={"Authorization": "Bearer testtoken"})
         
         assert response.status_code == 200
         data = response.json()
@@ -107,7 +107,7 @@ def test_create_location_success(mock_crud_create_location: Mock, mock_crud_get_
 
 @patch('app.db.crud_locations.get_location')
 @patch('app.db.crud_locations.update_location')
-def test_update_location_success(mock_crud_update_location: Mock, mock_crud_get_location: Mock, client: TestClient) -> None:
+def test_update_location_success(mock_crud_update_location: Mock, mock_crud_get_location: Mock, api_client: TestClient) -> None:
     mock_user = create_mock_user_object_for_orm()
     app.dependency_overrides[get_current_user] = lambda: mock_user
 
@@ -118,17 +118,17 @@ def test_update_location_success(mock_crud_update_location: Mock, mock_crud_get_
         updated_loc_data = {**existing_loc_data, "name": "Updated Test Location"}
         mock_crud_update_location.return_value = SimpleNamespace(**updated_loc_data)
 
-        response = client.put(f"/api/v1/locations/{existing_loc_data['id']}", json={"name": "Updated Test Location"}, headers={"Authorization": "Bearer testtoken"})
+        response = api_client.put(f"/api/v1/locations/{existing_loc_data['id']}", json={"name": "Updated Test Location"}, headers={"Authorization": "Bearer testtoken"})
         assert response.status_code == 200
         assert response.json()["name"] == "Updated Test Location"
     finally:
         app.dependency_overrides.clear()
 
 @patch('app.db.crud_locations.get_location')
-def test_get_location_not_found(mock_crud_get_location: Mock, client: TestClient) -> None:
+def test_get_location_not_found(mock_crud_get_location: Mock, api_client: TestClient) -> None:
     mock_crud_get_location.return_value = None
     
-    response = client.get("/api/v1/locations/999")
+    response = api_client.get("/api/v1/locations/999")
     
     assert response.status_code == 404
     data = response.json()
@@ -136,7 +136,7 @@ def test_get_location_not_found(mock_crud_get_location: Mock, client: TestClient
 
 @patch('app.db.crud_locations.get_location')
 @patch('app.db.crud_locations.delete_location')
-def test_delete_location_success(mock_crud_delete_location: Mock, mock_crud_get_location: Mock, client: TestClient) -> None:
+def test_delete_location_success(mock_crud_delete_location: Mock, mock_crud_get_location: Mock, api_client: TestClient) -> None:
     mock_user = create_mock_user_object_for_orm()
     app.dependency_overrides[get_current_user] = lambda: mock_user
 
@@ -145,7 +145,7 @@ def test_delete_location_success(mock_crud_delete_location: Mock, mock_crud_get_
         mock_crud_get_location.return_value = SimpleNamespace(**mock_location_data) # Simulate location exists
         mock_crud_delete_location.return_value = SimpleNamespace(**mock_location_data) # Simulate delete returns deleted obj
 
-        response = client.delete(f"/api/v1/locations/{mock_location_data['id']}", headers={"Authorization": "Bearer testtoken"})
+        response = api_client.delete(f"/api/v1/locations/{mock_location_data['id']}", headers={"Authorization": "Bearer testtoken"})
         assert response.status_code == 200 # Or 204 if your API returns No Content
         # Add assertion for response content if applicable, e.g., assert response.json()["name"] == "Test Location"
     finally:

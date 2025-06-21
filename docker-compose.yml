@@ -1,38 +1,53 @@
 version: '3.8'
 
 services:
-  app:
-    build: .
-    ports:
-      - "8000:8000"
-    environment:
-      - DATABASE_URL=postgresql://quest_user:quest_password@db:5432/quest_db
-      - JWT_SECRET_KEY=your-secret-key-change-in-production
-      - ENVIRONMENT=development
-    volumes:
-      - ./uploads:/app/uploads
-      - .:/app
-    depends_on:
-      - db
-      - redis
-
   db:
     image: postgis/postgis:15-3.3
+    env_file: .env
     environment:
-      POSTGRES_DB: quest_db
-      POSTGRES_USER: quest_user
-      POSTGRES_PASSWORD: quest_password
+      POSTGRES_DB: ${POSTGRES_DB:-quest_db}
+      POSTGRES_USER: ${POSTGRES_USER:-quest_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-quest_password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    # No ports exposed to the host in production for security
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
 
   redis:
     image: redis:7-alpine
-    ports:
-      - "6379:6379"
+    # No ports exposed to the host in production
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  api:
+    build:
+      context: .
+      target: production # Use the lean production stage from Dockerfile
+    entrypoint: /app/docker-entrypoint.sh
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-quest_user}:${POSTGRES_PASSWORD:-quest_password}@db:5432/${POSTGRES_DB:-quest_db}
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
 
 volumes:
   postgres_data:

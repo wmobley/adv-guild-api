@@ -42,14 +42,14 @@ def create_mock_user_object_for_orm() -> SimpleNamespace:
     return mock_user
 
 @patch('app.db.crud_users.get_user')
-def test_get_user_success(mock_get_user: Mock, client: TestClient) -> None:  # Use Mock instead of patch
+def test_get_user_success(mock_get_user: Mock, api_client: TestClient) -> None:  # Use Mock instead of patch
     # Create mock user with all required fields
     mock_user_data = create_mock_user_data()
     mock_user = SimpleNamespace(**mock_user_data)
     
     mock_get_user.return_value = mock_user
     
-    response = client.get("/api/v1/users/1")
+    response = api_client.get("/api/v1/users/1")
     
     assert response.status_code == 200
     data = response.json() # This will be UserOut serialized
@@ -58,7 +58,7 @@ def test_get_user_success(mock_get_user: Mock, client: TestClient) -> None:  # U
     assert data["email"] == "test@example.com"
 
 @patch('app.db.crud_users.get_users')
-def test_get_users_success(mock_get_users: Mock, client: TestClient) -> None:  # Use Mock instead of patch
+def test_get_users_success(mock_get_users: Mock, api_client: TestClient) -> None:  # Use Mock instead of patch
     # Create multiple mock users
     mock_users = []
     for i in range(3):
@@ -72,7 +72,7 @@ def test_get_users_success(mock_get_users: Mock, client: TestClient) -> None:  #
     
     mock_get_users.return_value = mock_users
     
-    response = client.get("/api/v1/users/")
+    response = api_client.get("/api/v1/users/")
     
     assert response.status_code == 200
     data = response.json()
@@ -80,7 +80,7 @@ def test_get_users_success(mock_get_users: Mock, client: TestClient) -> None:  #
     assert data[0]["display_name"] == "Test User 1"  # Use display_name
 
 
-def test_get_current_user_info(client: TestClient) -> None:
+def test_get_current_user_info(api_client: TestClient) -> None:
     # Mock the current user
     mock_user_object = create_mock_user_object_for_orm() # This returns a SimpleNamespace (ORM-like)
     
@@ -88,7 +88,7 @@ def test_get_current_user_info(client: TestClient) -> None:
     app.dependency_overrides[original_get_current_user] = lambda: mock_user_object
     try:
         # Add Authorization header
-        response = client.get("/api/v1/users/me", headers={"Authorization": "Bearer testtoken"})
+        response = api_client.get("/api/v1/users/me", headers={"Authorization": "Bearer testtoken"})
         
         assert response.status_code == 200
         data = response.json()
@@ -100,7 +100,7 @@ def test_get_current_user_info(client: TestClient) -> None:
 
 
 @patch('app.db.crud_users.update_user') # Patch crud where it's used by the endpoint
-def test_update_current_user(mock_crud_update_user: Mock, client: TestClient) -> None:  # Use Mock instead of patch
+def test_update_current_user(mock_crud_update_user: Mock, api_client: TestClient) -> None:  # Use Mock instead of patch
     # Mock current user
     # get_current_user returns an ORM-like object, FastAPI converts it to schemas.UserOut
     mock_current_orm_user = create_mock_user_object_for_orm()
@@ -120,7 +120,7 @@ def test_update_current_user(mock_crud_update_user: Mock, client: TestClient) ->
     update_data = {"display_name": "Updated Name"} # This matches UserUpdate schema now
     
     # Add Authorization header
-    response = client.put("/api/v1/users/me", json=update_data, headers={"Authorization": "Bearer testtoken"})
+    response = api_client.put("/api/v1/users/me", json=update_data, headers={"Authorization": "Bearer testtoken"})
     
     if response.status_code != 200:
         print(f"Unexpected response status: {response.status_code}, content: {response.text}")
@@ -133,21 +133,21 @@ def test_update_current_user(mock_crud_update_user: Mock, client: TestClient) ->
     finally:
         app.dependency_overrides.clear() # Clear overrides after the test
 
-def test_get_user_not_found(client: TestClient) -> None: # Added type annotation
+def test_get_user_not_found(api_client: TestClient) -> None: # Added type annotation
     with patch("app.db.crud_users.get_user") as mock_get_user:
         mock_get_user.return_value = None
         
-        response = client.get("/api/v1/users/999")
+        response = api_client.get("/api/v1/users/999")
         
         assert response.status_code == 404
         assert response.json()["detail"] == "User not found"
 
-def test_get_user_invalid_id(client: TestClient) -> None: # Added type annotation
-    response = client.get("/api/v1/users/invalid")
+def test_get_user_invalid_id(api_client: TestClient) -> None: # Added type annotation
+    response = api_client.get("/api/v1/users/invalid")
     assert response.status_code == 422
 
-def test_get_user_negative_id(client: TestClient) -> None: # Added type annotation
-    response = client.get("/api/v1/users/-1")
+def test_get_user_negative_id(api_client: TestClient) -> None: # Added type annotation
+    response = api_client.get("/api/v1/users/-1")
     
     # FastAPI validation returns 422 for invalid input types
     assert response.status_code == 422

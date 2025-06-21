@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgis/postgis:15-3.3
+    # Use env_file to load credentials, keeping them out of version control
+    env_file: .env
+    environment:
+      # Provide defaults if not set in .env
+      POSTGRES_DB: ${POSTGRES_DB:-quest_db}
+      POSTGRES_USER: ${POSTGRES_USER:-quest_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-quest_password}
+    volumes:
+      - ./scripts/init-test-db.sh:/docker-entrypoint-initdb.d/init-test-db.sh
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      # Expose port 5432 to the host for local tools if needed
+      - "5432:5432"
+    healthcheck:
+      # Check if the database is ready to accept connections
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  api: # Renamed from 'app' for clarity and consistency
+    build:
+      context: .
+      target: development
+    # The entrypoint script handles migrations before starting the app
+    entrypoint: /app/docker-entrypoint.sh
+    # The command passed to the entrypoint script
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      # Mount the current directory to the container for live code reloading
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      # Override DATABASE_URL to use the service name 'db' within the Docker network
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-quest_user}:${POSTGRES_PASSWORD:-quest_password}@db:5432/${POSTGRES_DB:-quest_db}
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+
+  test: # New service for running tests
+    build:
+      context: .
+      target: development
+    # Mount the entire project directory into the container
+    volumes:
+      - .:/app
+    # Set the working directory inside the container
+    working_dir: /app
+    # Ensure Python can find your application modules
+    environment:
+      - PYTHONPATH=/app
+      # Use the test database URL, pointing to the 'db' service
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-quest_user}:${POSTGRES_PASSWORD:-quest_password}@db:5432/${POSTGRES_DB_TEST:-quest_db_test}
+    # Run pytest command
+    command: ["python", "-m", "pytest"]
+    # Ensure database is healthy before running tests
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:

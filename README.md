@@ -161,6 +161,17 @@ docker-compose up -d db
    alembic upgrade head
    ```
 
+3. **Create the test database**
+   The test suite requires a separate database.
+   ```bash
+   sudo -u postgres psql
+   ```
+   ```sql
+   CREATE DATABASE quest_db_test;
+   GRANT ALL PRIVILEGES ON DATABASE quest_db_test TO quest_user;
+   \q
+   ```
+
 4. **Seed sample data (optional)**
    ```bash
    python scripts/seed_data.py
