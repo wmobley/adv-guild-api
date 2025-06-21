@@ -9,5 +9,6 @@ def client() -> Generator[TestClient, None, None]:
     """
     Create a TestClient instance that can be used in tests.
     """
-    with TestClient(app) as c:
-        yield c
+    test_client = TestClient(app)
+    yield test_client
+    test_client.close()
