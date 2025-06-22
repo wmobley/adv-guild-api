@@ -50,14 +50,21 @@ Before you begin, ensure you have the following installed:
    cd adv-guild-api
    ```
 
-2. **Create environment file**
+2. **Configure Docker Permissions (First-time setup)**
+   If you've just installed Docker, you'll likely need to add your user to the `docker` group to run commands without `sudo`.
    ```bash
-   cp .env.example .env
+   sudo usermod -aG docker $USER
+   ```
+   **Important**: You must log out and log back in for this change to take effect.
+
+3. **Create environment file**
+   ```bash
+   cp example.env .env # Or cp .env.sample .env
    ```
 
-3. **Start the development environment**
+4. **Start the development environment**
    ```bash
-   docker-compose up -d
+   docker-compose -f docker-compose.dev.yml up -d
    ```
 
 ### Option 2: Local Development Setup
