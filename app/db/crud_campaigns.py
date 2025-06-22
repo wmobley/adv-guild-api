@@ -7,8 +7,6 @@ from app.db.schemas import CampaignCreate, CampaignUpdate
 def create_campaign(db: Session, campaign: CampaignCreate, author_id: int) -> Campaign:
     db_campaign = Campaign(**campaign.model_dump(), author_id=author_id)
     db.add(db_campaign)
-    db.commit()
-    db.refresh(db_campaign)
     return db_campaign
 
 
@@ -25,8 +23,6 @@ def update_campaign(db: Session, db_campaign: Campaign, campaign_data: CampaignU
     for key, value in update_data.items():
         setattr(db_campaign, key, value)
     db.add(db_campaign)
-    db.commit()
-    db.refresh(db_campaign)
     return db_campaign
 
 
@@ -34,6 +30,5 @@ def delete_campaign(db: Session, campaign_id: int) -> bool:
     db_campaign = get_campaign(db, campaign_id)
     if db_campaign:
         db.delete(db_campaign)
-        db.commit()
         return True
     return False

@@ -1,17 +1,18 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
+from typing import Generator
 
 from app.core.config import settings
 
-engine = create_engine(settings.DATABASE_URL)
+engine = create_engine(str(settings.DATABASE_URL))
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base = declarative_base()
+# The declarative_base() is no longer needed here. The `Base` class is defined
+# in `app.db.models` and serves as the single source of truth for your models.
 
 
-def get_db(): # type: ignore[no-untyped-def]
-    db = SessionLocal()
+def get_db() -> Generator[Session, None, None]:
+    db: Session = SessionLocal()
     try:
         yield db
     finally:

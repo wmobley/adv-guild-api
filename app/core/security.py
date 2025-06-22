@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.db import crud_users, models
+from app.db import crud_users, models, schemas
 from app.db.database import get_db
 
 # Use passlib for password hashing, which is more convenient and type-safe
@@ -54,17 +54,18 @@ def get_current_user(
         payload = jwt.decode(
             token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
-        email: str | None = payload.get("sub")
+        # Use the TokenData schema for validation
+        token_data = schemas.TokenData(email=payload.get("sub"))
         expire_from_payload = payload.get("exp")
 
-        if not isinstance(email, str) or not isinstance(expire_from_payload, int):
+        if token_data.email is None or not isinstance(expire_from_payload, int):
             raise credentials_exception
 
         if datetime.fromtimestamp(expire_from_payload, tz=timezone.utc) < datetime.now(timezone.utc):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
     except (JWTError, ValidationError):
         raise credentials_exception
-    user = crud_users.get_user_by_email(db, email=email)
+    user = crud_users.get_user_by_email(db, email=token_data.email)
     if user is None:
         raise credentials_exception
     return user

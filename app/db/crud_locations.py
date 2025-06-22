@@ -7,8 +7,6 @@ from app.db.schemas import LocationCreate, LocationUpdate
 def create_location(db: Session, location: LocationCreate) -> Location:
     db_location = Location(**location.model_dump())
     db.add(db_location)
-    db.commit()
-    db.refresh(db_location)
     return db_location
 
 
@@ -25,8 +23,6 @@ def update_location(db: Session, db_location: Location, location_in: LocationUpd
     for key, value in update_data.items():
         setattr(db_location, key, value)
     db.add(db_location)
-    db.commit()
-    db.refresh(db_location)
     return db_location
 
 
@@ -34,6 +30,5 @@ def delete_location(db: Session, location_id: int) -> Optional[Location]:
     db_location = get_location(db, location_id)
     if db_location:
         db.delete(db_location)
-        db.commit()
         return db_location
     return None

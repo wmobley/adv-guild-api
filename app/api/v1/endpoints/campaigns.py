@@ -35,8 +35,10 @@ def create_campaign(
     current_user: schemas.UserOut = Depends(get_current_user),
     db: Session = Depends(get_db)
 ) -> schemas.CampaignOut:
-    campaign = crud_campaigns.create_campaign(db, campaign_data, author_id=current_user.id) # Changed
-    return schemas.CampaignOut.model_validate(campaign)
+    new_campaign = crud_campaigns.create_campaign(db, campaign_data, author_id=current_user.id)
+    db.commit()
+    db.refresh(new_campaign)
+    return schemas.CampaignOut.model_validate(new_campaign)
 
 @router.put("/{campaign_id}", response_model=schemas.CampaignOut)
 def update_campaign(
@@ -53,8 +55,10 @@ def update_campaign(
     # Check if user is the author (authorization check)
     if existing_campaign.author_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to update this campaign")
-    campaign = crud_campaigns.update_campaign(db, db_campaign=existing_campaign, campaign_data=campaign_data)
-    return schemas.CampaignOut.model_validate(campaign)
+    updated_campaign = crud_campaigns.update_campaign(db, db_campaign=existing_campaign, campaign_data=campaign_data)
+    db.commit()
+    db.refresh(updated_campaign)
+    return schemas.CampaignOut.model_validate(updated_campaign)
 
 @router.delete("/{campaign_id}")
 def delete_campaign(
@@ -70,7 +74,8 @@ def delete_campaign(
     # Check if user is the author (authorization check)
     if existing_campaign.author_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to delete this campaign")
-    success = crud_campaigns.delete_campaign(db, campaign_id=campaign_id) # Changed
+    success = crud_campaigns.delete_campaign(db, campaign_id=campaign_id)
     if not success:
         raise HTTPException(status_code=404, detail="Campaign not found")
+    db.commit()
     return {"message": "Campaign deleted successfully"}

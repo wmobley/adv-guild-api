@@ -7,7 +7,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     # Define fields with type hints and default values.
     # pydantic-settings will automatically map these to environment variables.
-    DATABASE_URL: str = "postgresql://user:password@host:port/db"
+    # By not providing a default value, Pydantic will raise a validation error
+    # if the DATABASE_URL environment variable is not set, which is a clearer
+    # error than the one you encountered.
+    DATABASE_URL: str
     JWT_SECRET_KEY: str = "secret"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
@@ -20,13 +23,13 @@ class Settings(BaseSettings):
 
     # This controls how settings are loaded.
     model_config = SettingsConfigDict(
-        # If ENV_FILE is set, it will load that file. Otherwise, it defaults to .env.
-        # To disable .env loading, set ENV_FILE to a non-existent path or an empty string.
-        env_file=os.getenv("ENV_FILE", ".env"),
+        # By default, pydantic-settings loads from a `.env` file.
+        # We are keeping this simple and predictable for development and production.
+        # For tests, the environment is explicitly loaded in `tests/conftest.py`.
+        env_file=".env",
         env_file_encoding='utf-8',
         case_sensitive=False,
         extra='ignore'
     )
 
-
-settings = Settings()
+settings = Settings()  # type: ignore [call-arg]

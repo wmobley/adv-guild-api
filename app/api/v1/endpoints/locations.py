@@ -31,8 +31,10 @@ def create_location(
     current_user: schemas.UserOut = Depends(get_current_user)
 ) -> schemas.LocationOut:
     # NOTE: Authorization check could be added here if needed
-    location = crud_locations.create_location(db, location_data)
-    return schemas.LocationOut.model_validate(location)
+    new_location = crud_locations.create_location(db, location_data)
+    db.commit()
+    db.refresh(new_location)
+    return schemas.LocationOut.model_validate(new_location)
 
 @router.put("/{location_id}", response_model=schemas.LocationOut)
 def update_location(
@@ -47,16 +49,19 @@ def update_location(
     
     # NOTE: Authorization check could be added here, e.g., if locations have authors
     updated_location = crud_locations.update_location(db, db_location=existing_location, location_in=location_data)
+    db.commit()
+    db.refresh(updated_location)
     return schemas.LocationOut.model_validate(updated_location)
 
-@router.delete("/{location_id}", response_model=schemas.LocationOut)
+@router.delete("/{location_id}", response_model=Dict[str, str])
 def delete_location(
     location_id: int,
     db: Session = Depends(get_db),
     current_user: schemas.UserOut = Depends(get_current_user)
-) -> schemas.LocationOut:
+) -> Dict[str, str]:
     # NOTE: Authorization check could be added here
     deleted_location = crud_locations.delete_location(db, location_id=location_id)
     if not deleted_location:
         raise HTTPException(status_code=404, detail="Location not found")
-    return schemas.LocationOut.model_validate(deleted_location)
+    db.commit()
+    return {"message": "Location deleted successfully"}

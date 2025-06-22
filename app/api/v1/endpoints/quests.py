@@ -36,8 +36,10 @@ def create_quest(
     current_user: schemas.UserOut = Depends(get_current_user),
     db: Session = Depends(get_db)
 ) -> schemas.QuestOut:
-    quest = crud_quests.create_quest(db, quest_data, current_user.id) # Changed
-    return schemas.QuestOut.model_validate(quest)
+    new_quest = crud_quests.create_quest(db, quest_data, current_user.id)
+    db.commit()
+    db.refresh(new_quest)
+    return schemas.QuestOut.model_validate(new_quest)
 
 @router.put("/{quest_id}", response_model=schemas.QuestOut)
 def update_quest(
@@ -45,7 +47,7 @@ def update_quest(
     quest_data: schemas.QuestUpdate,
     current_user: schemas.UserOut = Depends(get_current_user),  # Now this should work
     db: Session = Depends(get_db)
-) -> Any:
+) -> schemas.QuestOut:
     quest = crud_quests.get_quest(db, quest_id=quest_id) # Changed
     if not quest:
         raise HTTPException(status_code=404, detail="Quest not found")
@@ -55,14 +57,18 @@ def update_quest(
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
     updated_quest = crud_quests.update_quest(db, db_quest=quest, quest_in=quest_data)
-    return updated_quest
+    db.commit()
+    db.refresh(updated_quest)
+    return schemas.QuestOut.model_validate(updated_quest)
 
 @router.post("/{quest_id}/like", response_model=schemas.QuestOut)
-def like_quest(quest_id: int, db: Session = Depends(get_db)) -> Any:
+def like_quest(quest_id: int, db: Session = Depends(get_db)) -> schemas.QuestOut:
     quest = crud_quests.like_quest(db, quest_id=quest_id) # Changed
     if not quest:
         raise HTTPException(status_code=404, detail="Quest not found")
-    return quest
+    db.commit()
+    db.refresh(quest)
+    return schemas.QuestOut.model_validate(quest)
 
 @router.post("/{quest_id}/bookmark")
 def bookmark_quest(
@@ -80,4 +86,6 @@ def bookmark_quest(
     
     if not updated_quest:
         raise HTTPException(status_code=404, detail="Quest not found")
+    db.commit()
+    db.refresh(updated_quest)
     return {"bookmarks": updated_quest.bookmarks, "user_bookmarked": not existing_bookmark}

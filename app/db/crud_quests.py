@@ -19,8 +19,6 @@ def create_quest(db: Session, quest: QuestCreate, author_id: int) -> Quest:
         campaign_id=quest.campaign_id
     )
     db.add(db_quest)
-    db.commit()
-    db.refresh(db_quest)
     return db_quest
 
 def get_quest(db: Session, quest_id: int) -> Quest | None:
@@ -59,8 +57,6 @@ def update_quest(db: Session, db_quest: Quest, quest_in: QuestUpdate) -> Quest:
     for key, value in update_data.items():
         setattr(db_quest, key, value)
     db.add(db_quest)
-    db.commit()
-    db.refresh(db_quest)
     return db_quest
 
 # The original errors on lines 84, 104, 115 of your previous crud_quests.py
@@ -72,8 +68,6 @@ def like_quest(db: Session, quest_id: int) -> Optional[Quest]:
     if db_quest:
         db_quest.likes += 1  # type: ignore [assignment]
         db.add(db_quest)
-        db.commit()
-        db.refresh(db_quest)
     return db_quest
 
 def get_quest_bookmark_by_user_and_quest(db: Session, user_id: int, quest_id: int) -> Optional[UserQuestBookmark]:
@@ -92,8 +86,6 @@ def add_quest_bookmark_for_user(db: Session, user_id: int, quest_id: int) -> Opt
             db.add(db_bookmark)
             db_quest.bookmarks += 1  # type: ignore [assignment] # Increment denormalized count
             db.add(db_quest)
-            db.commit()
-            db.refresh(db_quest)
     return db_quest
 
 def remove_quest_bookmark_for_user(db: Session, user_id: int, quest_id: int) -> Optional[Quest]:
@@ -104,6 +96,4 @@ def remove_quest_bookmark_for_user(db: Session, user_id: int, quest_id: int) -> 
             db.delete(db_bookmark)
             db_quest.bookmarks -= 1  # type: ignore [assignment] # Decrement denormalized count
             db.add(db_quest)
-            db.commit()
-            db.refresh(db_quest)
     return db_quest
