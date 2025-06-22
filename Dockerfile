@@ -16,7 +16,9 @@ COPY . .
 # Production stage with only runtime dependencies
 FROM base as production
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install gunicorn for production, then install the rest of the app dependencies.
+# gunicorn is needed to run the production server as specified in docker-compose.prod.yml.
+RUN pip install --no-cache-dir gunicorn && pip install --no-cache-dir -r requirements.txt
 COPY . .
 EXPOSE 8000
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["gunicorn", "app.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
