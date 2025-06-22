@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
 from app.db.database import get_db
-from app.db import crud_users, schemas, models
+from app.db import crud_users, schemas, models, crud_quests
 from app.core.security import get_current_user
 from typing import List
 
@@ -57,3 +57,17 @@ def get_my_bookmarked_quests(
     """
     bookmarked_quests = crud_users.get_bookmarked_quests_by_user(db, user_id=current_user.id)  # type: ignore [arg-type]
     return [schemas.QuestOut.model_validate(quest) for quest in bookmarked_quests]
+
+
+@router.get("/me/quests", response_model=List[schemas.QuestOut])
+def get_my_quests(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1, le=100),
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> List[schemas.QuestOut]:
+    """
+    Retrieve all quests created by the current user.
+    """
+    quests = crud_quests.get_quests(db, author_id=current_user.id, skip=skip, limit=limit)
+    return [schemas.QuestOut.model_validate(quest) for quest in quests]
