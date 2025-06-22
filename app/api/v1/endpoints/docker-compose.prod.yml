@@ -34,7 +34,8 @@ services:
       context: .
       # Explicitly use the 'production' stage from your Dockerfile
       target: production
-    command: gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+    # The entrypoint script handles migrations before starting the app.
+    entrypoint: /app/docker-entrypoint.sh
     ports:
       - "8000:8000"
     env_file: .env
