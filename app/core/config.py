@@ -24,9 +24,10 @@ class Settings(BaseSettings):
     # This controls how settings are loaded.
     model_config = SettingsConfigDict(
         # By default, pydantic-settings loads from a `.env` file.
-        # We are keeping this simple and predictable for development and production.
-        # For tests, the environment is explicitly loaded in `tests/conftest.py`.
-        env_file=".env",
+        # By not specifying `env_file` here, we allow the runtime environment
+        # (e.g., Docker, shell) to control which .env file is loaded.
+        # pydantic-settings will automatically load a file named `.env` if it exists,
+        # and will always prioritize system environment variables.
         env_file_encoding='utf-8',
         case_sensitive=False,
         extra='ignore'

@@ -58,13 +58,19 @@ Before you begin, ensure you have the following installed:
    **Important**: You must log out and log back in for this change to take effect.
 
 3. **Create environment file**
+   Copy the example environment file. For production, be sure to edit the values, especially `JWT_SECRET_KEY`.
    ```bash
-   cp example.env .env # Or cp .env.sample .env
+   cp example.env .env
    ```
 
-4. **Start the development environment**
+4. **Start the development environment (with live reload)**
    ```bash
    docker-compose -f docker-compose.dev.yml up -d
+   ```
+
+5. **Start the production environment**
+   ```bash
+   docker-compose up -d --build
    ```
 
 ### Option 2: Local Development Setup
@@ -189,16 +195,16 @@ docker-compose up -d db
 ### Using Docker Compose
 
 ```bash
-# Start all services
-docker-compose up
-
-# Start in background
+# Start production services in background
 docker-compose up -d
 
-# View logs
+# Start development services in background
+docker-compose -f docker-compose.dev.yml up -d
+
+# View API logs (for either environment)
 docker-compose logs -f api
 
-# Stop services
+# Stop and remove containers
 docker-compose down
 ```
 

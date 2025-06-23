@@ -10,8 +10,6 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-quest_password}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
 
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
@@ -37,7 +35,6 @@ services:
       context: .
       target: production # Use the lean production stage from Dockerfile
     entrypoint: /app/docker-entrypoint.sh
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
     env_file: .env
