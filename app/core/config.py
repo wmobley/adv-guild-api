@@ -11,14 +11,14 @@ class Settings(BaseSettings):
     # if the DATABASE_URL environment variable is not set, which is a clearer
     # error than the one you encountered.
     DATABASE_URL: str
-    JWT_SECRET_KEY: str = "secret"
+    JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "Adventure Guild API"
     VERSION: str = "0.1.0"
     # pydantic-settings can parse JSON strings from env vars into lists
-    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8080"]
+    BACKEND_CORS_ORIGINS: List[str] = ["https://adventure-guild.netlify.app/", "http://localhost:3000", "http://localhost:8080"]
     REDIS_URL: str = "redis://localhost:6379"
 
     # This controls how settings are loaded.
