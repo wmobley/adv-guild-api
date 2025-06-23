@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Adventure Guild API"
     VERSION: str = "0.1.0"
     # pydantic-settings can parse JSON strings from env vars into lists
-    BACKEND_CORS_ORIGINS: List[str] = ["https://adventure-guild.netlify.app/", "http://localhost:3000", "http://localhost:8080"]
+    BACKEND_CORS_ORIGINS: List[str] = ["https://adventure-guild.netlify.app","https://adventure-guild.netlify.app/", "http://localhost:3000", "http://localhost:8080"]
     REDIS_URL: str = "redis://localhost:6379"
 
     # This controls how settings are loaded.
