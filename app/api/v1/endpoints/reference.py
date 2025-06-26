@@ -7,7 +7,7 @@ from typing import List
 
 router = APIRouter()
 
-@router.get("/interests/", response_model=List[schemas.InterestOut])
+@router.get("/interests", response_model=List[schemas.InterestOut])
 def get_interests(db: Session = Depends(get_db)) -> List[schemas.InterestOut]:
     try:
         interests = crud_reference_data.get_interests(db) # Changed
@@ -15,7 +15,7 @@ def get_interests(db: Session = Depends(get_db)) -> List[schemas.InterestOut]:
     except SQLAlchemyError:
         raise HTTPException(status_code=500, detail="Database error occurred")
 
-@router.get("/difficulties/", response_model=List[schemas.DifficultyOut])
+@router.get("/difficulties", response_model=List[schemas.DifficultyOut])
 def get_difficulties(db: Session = Depends(get_db)) -> List[schemas.DifficultyOut]:
     try:
         difficulties = crud_reference_data.get_difficulties(db) # Changed
@@ -23,7 +23,7 @@ def get_difficulties(db: Session = Depends(get_db)) -> List[schemas.DifficultyOu
     except SQLAlchemyError:
         raise HTTPException(status_code=500, detail="Database error occurred")
 
-@router.get("/quest-types/", response_model=List[schemas.QuestTypeOut])
+@router.get("/quest-types", response_model=List[schemas.QuestTypeOut])
 def get_quest_types(db: Session = Depends(get_db)) -> List[schemas.QuestTypeOut]:
     try:
         quest_types = crud_reference_data.get_quest_types(db) # Changed
