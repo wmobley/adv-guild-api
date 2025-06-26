@@ -2,6 +2,7 @@
 """
 Script to seed the database with sample data
 """
+from pathlib import Path
 import sys
 import os
 import json
@@ -9,13 +10,26 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from typing import Dict, Any, Optional, List, Union, cast
 
-# Add the project root to the path
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+# Load environment variables from .env file
+from dotenv import load_dotenv
 
+# Get the project root directory (parent of scripts directory)
+project_root = Path(__file__).parent.parent
+env_path = project_root / '.env'
+
+# Load the .env file
+load_dotenv(env_path)
+
+# Set default values if not found in environment
+os.environ.setdefault('DATABASE_URL', 'sqlite:///./adventure_guild.db')
+os.environ.setdefault('JWT_SECRET_KEY', 'default-secret-key-for-development')
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+# Now import your app modules
 from app.db.database import SessionLocal, engine
 from app.db.models import Base, User, Location, Quest, Campaign, QuestType, Difficulty, Interest
 from app.db import schemas, crud_locations, crud_quests, crud_campaigns, crud_reference_data
-from app.core.security import get_password_hash
+from app.core.password import get_password_hash
 
 # Note: The `type: ignore` for `app.db.models` is a temporary measure if mypy
 # complains about models not having certain attributes when imported here.
