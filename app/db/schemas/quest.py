@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import datetime
 
@@ -56,8 +56,15 @@ class QuestUpdate(BaseModel):
     campaign_id: Optional[int] = None
 
 
-class QuestOut(QuestBase, BaseOutputSchema):
+class QuestOut(BaseModel):
     id: int
+    name: str
+    synopsis: Optional[str] = None
+    start_location_id: Optional[int] = None
+    interest_id: Optional[int] = None
+    itinerary: Optional[str] = None
+    difficulty_id: Optional[int] = None
+    quest_type_id: Optional[int] = None
     author_id: int
     created_at: datetime
     updated_at: Optional[datetime] = None
@@ -68,6 +75,8 @@ class QuestOut(QuestBase, BaseOutputSchema):
     difficulty: Optional[DifficultyOut] = None
     quest_type: Optional[QuestTypeOut] = None
     campaign: Optional[CampaignOut] = None
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class QuestListResponse(BaseModel):

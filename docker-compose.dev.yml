@@ -2,24 +2,21 @@ version: '3.8'
 
 services:
   db:
-    image: postgis/postgis:15-3.3
-    # Use env_file to load credentials, keeping them out of version control
+    build:
+      context: .
+      dockerfile: Dockerfile.db
     env_file: .env
     environment:
-      # Provide defaults if not set in .env
       POSTGRES_DB: ${POSTGRES_DB:-quest_db}
       POSTGRES_USER: ${POSTGRES_USER:-quest_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-quest_password}
       POSTGRES_DB_TEST: ${POSTGRES_DB_TEST:-quest_db_test}
     volumes:
-      - ./scripts/init-test-db.sh:/docker-entrypoint-initdb.d/init-test-db.sh
       - postgres_data:/var/lib/postgresql/data
     ports:
-      # Expose port 5432 to the host for local tools if needed
       - "5432:5432"
     healthcheck:
-      # Check if the database is ready to accept connections
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5

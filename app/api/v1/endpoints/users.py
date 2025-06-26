@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.db import crud_users, schemas, models, crud_quests
 from app.core.security import get_current_user
-from typing import List
+from typing import List, cast
 
 router = APIRouter()
 
@@ -55,7 +55,7 @@ def get_my_bookmarked_quests(
     """
     Retrieve all quests bookmarked by the current user.
     """
-    bookmarked_quests = crud_users.get_bookmarked_quests_by_user(db, user_id=current_user.id)  # type: ignore [arg-type]
+    bookmarked_quests = crud_users.get_bookmarked_quests_by_user(db, user_id=cast(int, current_user.id))
     return [schemas.QuestOut.model_validate(quest) for quest in bookmarked_quests]
 
 
@@ -69,5 +69,5 @@ def get_my_quests(
     """
     Retrieve all quests created by the current user.
     """
-    quests = crud_quests.get_quests(db, author_id=current_user.id, skip=skip, limit=limit)
+    quests = crud_quests.get_quests(db, author_id=cast(int, current_user.id), skip=skip, limit=limit)
     return [schemas.QuestOut.model_validate(quest) for quest in quests]
