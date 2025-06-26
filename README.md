@@ -118,6 +118,7 @@ DEBUG=true
 API_V1_STR=/api/v1
 
 # CORS Settings
+# For production, set this to your frontend domain(s), e.g., ["https://adv-guild.com", "https://www.adv-guild.com"]
 BACKEND_CORS_ORIGINS=["http://localhost:3000", "http://localhost:8080"]
 
 # Optional: External Services
@@ -232,6 +233,8 @@ Once the server is running, you can access the interactive API documentation:
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 - **OpenAPI JSON**: http://localhost:8000/openapi.json
+
+In a production environment, replace `http://localhost:8000` with your API's public URL (e.g., `https://api.adv-guild.com`).
 
 ### Key Endpoints
 

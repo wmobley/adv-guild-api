@@ -27,10 +27,10 @@ def test_settings_default_values() -> None:
         assert settings.JWT_ALGORITHM == "HS256"
         # Update to match the actual default values from config.py
         assert settings.BACKEND_CORS_ORIGINS == [
-            "https://adventure-guild.netlify.app",
-            "https://adventure-guild.netlify.app/", 
-            "http://localhost:3000", 
-            "http://localhost:8080"
+            "https://adv-guild.com",
+            "https://www.adv-guild.com",
+            "http://localhost:3000",
+            "http://localhost:8080",
         ]
 
 
