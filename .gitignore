@@ -143,3 +143,4 @@ uploads/
 logs/
 *.db
 openapi.json
+.env.test
