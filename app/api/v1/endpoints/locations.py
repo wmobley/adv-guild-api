@@ -36,7 +36,7 @@ def create_location(
     db.refresh(new_location)
     return schemas.LocationOut.model_validate(new_location)
 
-@router.put("/{location_id}", response_model=schemas.LocationOut)
+@router.put("/{location_id}/", response_model=schemas.LocationOut)
 def update_location(
     location_id: int,
     location_data: schemas.LocationUpdate,
@@ -53,7 +53,7 @@ def update_location(
     db.refresh(updated_location)
     return schemas.LocationOut.model_validate(updated_location)
 
-@router.delete("/{location_id}", response_model=Dict[str, str])
+@router.delete("/{location_id}/", response_model=Dict[str, str])
 def delete_location(
     location_id: int,
     db: Session = Depends(get_db),

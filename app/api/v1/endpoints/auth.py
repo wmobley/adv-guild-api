@@ -10,7 +10,7 @@ from typing import Dict, Any
 router = APIRouter()
 
 
-@router.post("/login", response_model=schemas.UserResponse)
+@router.post("/login/", response_model=schemas.UserResponse)
 def login_for_access_token(
     db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ) -> Dict[str, Any]:
@@ -31,7 +31,7 @@ def login_for_access_token(
     }
 
 
-@router.post("/register", response_model=schemas.UserResponse)
+@router.post("/register/", response_model=schemas.UserResponse)
 def register_user(user_in: schemas.UserCreate, db: Session = Depends(get_db)) -> Dict[str, Any]:
     db_user = crud_users.get_user_by_email(db, email=user_in.email)
     if db_user:

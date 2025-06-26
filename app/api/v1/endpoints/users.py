@@ -16,13 +16,13 @@ def get_users(
     users = crud_users.get_users(db, skip=skip, limit=limit) # Changed
     return [schemas.UserOut.model_validate(user) for user in users]
 
-@router.get("/me", response_model=schemas.UserOut)
+@router.get("/me/", response_model=schemas.UserOut)
 def get_current_user_info(
     current_user: models.User = Depends(get_current_user)
 ) -> schemas.UserOut:
     return schemas.UserOut.model_validate(current_user)
 
-@router.put("/me", response_model=schemas.UserOut)
+@router.put("/me/", response_model=schemas.UserOut)
 def update_current_user(
     user_update: schemas.UserUpdate,
     current_user: models.User = Depends(get_current_user),
@@ -37,7 +37,7 @@ def update_current_user(
     db.refresh(updated_user)
     return schemas.UserOut.model_validate(updated_user)
 
-@router.get("/{user_id}", response_model=schemas.UserOut)
+@router.get("/{user_id}/", response_model=schemas.UserOut)
 def get_user(
     user_id: int = Path(..., gt=0, description="The ID of the user to retrieve."),
     db: Session = Depends(get_db)
@@ -47,7 +47,7 @@ def get_user(
         raise HTTPException(status_code=404, detail="User not found")
     return schemas.UserOut.model_validate(user)
 
-@router.get("/me/bookmarks", response_model=List[schemas.QuestOut]) # Assuming you want to return a list of Quests
+@router.get("/me/bookmarks/", response_model=List[schemas.QuestOut]) # Assuming you want to return a list of Quests
 def get_my_bookmarked_quests(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -59,7 +59,7 @@ def get_my_bookmarked_quests(
     return [schemas.QuestOut.model_validate(quest) for quest in bookmarked_quests]
 
 
-@router.get("/me/quests", response_model=List[schemas.QuestOut])
+@router.get("/me/quests/", response_model=List[schemas.QuestOut])
 def get_my_quests(
     skip: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),

@@ -22,7 +22,7 @@ def get_campaigns(
     
     return [schemas.CampaignOut.model_validate(campaign) for campaign in campaigns]
 
-@router.get("/{campaign_id}", response_model=schemas.CampaignOut)
+@router.get("/{campaign_id}/", response_model=schemas.CampaignOut)
 def get_campaign(campaign_id: int, db: Session = Depends(get_db)) -> schemas.CampaignOut:
     campaign = crud_campaigns.get_campaign(db, campaign_id=campaign_id) # Changed
     if not campaign:
@@ -40,7 +40,7 @@ def create_campaign(
     db.refresh(new_campaign)
     return schemas.CampaignOut.model_validate(new_campaign)
 
-@router.put("/{campaign_id}", response_model=schemas.CampaignOut)
+@router.put("/{campaign_id}/", response_model=schemas.CampaignOut)
 def update_campaign(
     campaign_id: int,
     campaign_data: schemas.CampaignUpdate,
@@ -60,7 +60,7 @@ def update_campaign(
     db.refresh(updated_campaign)
     return schemas.CampaignOut.model_validate(updated_campaign)
 
-@router.delete("/{campaign_id}")
+@router.delete("/{campaign_id}/")
 def delete_campaign(
     campaign_id: int,
     current_user: schemas.UserOut = Depends(get_current_user),

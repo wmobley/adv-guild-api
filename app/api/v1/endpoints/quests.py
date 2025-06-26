@@ -23,7 +23,7 @@ def get_quests(
     )
     return [schemas.QuestOut.model_validate(quest) for quest in quests]
 
-@router.get("/{quest_id}", response_model=schemas.QuestOut)
+@router.get("/{quest_id}/", response_model=schemas.QuestOut)
 def get_quest(quest_id: int, db: Session = Depends(get_db)) -> schemas.QuestOut:
     quest = crud_quests.get_quest(db, quest_id=quest_id) # Changed
     if not quest:
@@ -61,7 +61,7 @@ def update_quest(
     db.refresh(updated_quest)
     return schemas.QuestOut.model_validate(updated_quest)
 
-@router.post("/{quest_id}/like", response_model=schemas.QuestOut)
+@router.post("/{quest_id}/like/", response_model=schemas.QuestOut)
 def like_quest(quest_id: int, db: Session = Depends(get_db)) -> schemas.QuestOut:
     quest = crud_quests.like_quest(db, quest_id=quest_id) # Changed
     if not quest:
@@ -70,7 +70,7 @@ def like_quest(quest_id: int, db: Session = Depends(get_db)) -> schemas.QuestOut
     db.refresh(quest)
     return schemas.QuestOut.model_validate(quest)
 
-@router.post("/{quest_id}/bookmark")
+@router.post("/{quest_id}/bookmark/")
 def bookmark_quest(
     quest_id: int,
     current_user: schemas.UserOut = Depends(get_current_user),
