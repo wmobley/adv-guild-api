@@ -18,7 +18,9 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Adventure Guild API"
     VERSION: str = "0.1.0"
     # pydantic-settings can parse JSON strings from env vars into lists
-    BACKEND_CORS_ORIGINS: List[str] = ["https://adv-guild.com", "https://www.adv-guild.com", "http://localhost:3000", "http://localhost:8080"]
+    BACKEND_CORS_ORIGINS: List[str] = ["https://adv-guild.com", "https://www.adv-guild.com",
+                                       'http://localhost:5173',
+                                        "http://localhost:3000", "http://localhost:8080"]
     REDIS_URL: str = "redis://localhost:6379"
 
     # This controls how settings are loaded.
@@ -28,6 +30,7 @@ class Settings(BaseSettings):
         # (e.g., Docker, shell) to control which .env file is loaded.
         # pydantic-settings will automatically load a file named `.env` if it exists,
         # and will always prioritize system environment variables.
+        env_file=".env",
         env_file_encoding='utf-8',
         case_sensitive=False,
         extra='ignore'

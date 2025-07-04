@@ -95,16 +95,34 @@ def create_sample_data() -> Dict[str, Any]:
         # Create sample quests
         quests = []
         for quest_data in sample_data['sample_quests']:
-            # This is a simplified mapping. A more robust implementation would handle missing keys.
-            start_location = locations.get("Edinburgh Castle")
+            # Pop the mapping fields from the quest_data dict to avoid passing them to the model constructor
+            location_name = quest_data.pop("start_location_name", None)
+            quest_type_name = quest_data.pop("quest_type_name", None)
+            difficulty_name = quest_data.pop("difficulty_name", None)
+            interest_name = quest_data.pop("interest_name", None)
+
+            # Get the related objects from the dictionaries created earlier
+            start_location = locations.get(location_name) if location_name else None
+            quest_type = quest_types.get(quest_type_name) if quest_type_name else None
+            difficulty = difficulties.get(difficulty_name) if difficulty_name else None
+            interest = interests.get(interest_name) if interest_name else None
+
+            # Raise errors if any required mapping is missing to ensure data integrity
             if not start_location:
-                raise ValueError("Seed data is missing required location: Edinburgh Castle")
+                raise ValueError(f"Quest '{quest_data['name']}' has an invalid or missing 'start_location_name': {location_name}")
+            if not quest_type:
+                raise ValueError(f"Quest '{quest_data['name']}' has an invalid or missing 'quest_type_name': {quest_type_name}")
+            if not difficulty:
+                raise ValueError(f"Quest '{quest_data['name']}' has an invalid or missing 'difficulty_name': {difficulty_name}")
+            if not interest:
+                raise ValueError(f"Quest '{quest_data['name']}' has an invalid or missing 'interest_name': {interest_name}")
+
             quest_defaults = {
                 "author_id": default_author.id,
-                "start_location_id": start_location.id, # Example mapping
-                "interest_id": interests.get("Supernatural Encounter", next(iter(interests.values()))).id,
-                "difficulty_id": difficulties.get("Adventurer's Challenge", next(iter(difficulties.values()))).id,
-                "quest_type_id": quest_types.get("Supernatural Encounter", next(iter(quest_types.values()))).id,
+                "start_location_id": start_location.id,
+                "interest_id": interest.id,
+                "difficulty_id": difficulty.id,
+                "quest_type_id": quest_type.id,
                 **quest_data
             }
             quests.append(get_or_create(db, Quest, name=quest_data['name'], defaults=quest_defaults))
@@ -134,6 +152,3 @@ if __name__ == "__main__":
     print("Seed data creation completed:")
     for key, value in result.items():
         print(f"  {key}: {value}")
-
-
-

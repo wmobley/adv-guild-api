@@ -65,12 +65,12 @@ Before you begin, ensure you have the following installed:
 
 4. **Start the development environment (with live reload)**
    ```bash
-   docker-compose -f docker-compose.dev.yml up -d
+   docker compose -f docker-compose.dev.yml up -d
    ```
 
 5. **Start the production environment**
    ```bash
-   docker-compose up -d --build
+   docker compose up -d --build
    ```
 
 ### Option 2: Local Development Setup
@@ -143,7 +143,7 @@ SENDGRID_API_KEY=your-sendgrid-api-key
 The Docker Compose setup automatically handles database initialization.
 
 ```bash
-docker-compose up -d db
+docker compose up -d db
 ```
 
 ### Manual Setup
@@ -197,16 +197,16 @@ docker-compose up -d db
 
 ```bash
 # Start production services in background
-docker-compose up -d
+docker compose up -d
 
 # Start development services in background
-docker-compose -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.dev.yml up -d
 
 # View API logs (for either environment)
-docker-compose logs -f api
+docker compose logs -f api
 
 # Stop and remove containers
-docker-compose down
+docker compose down
 ```
 
 ### Local Development
@@ -216,7 +216,7 @@ docker-compose down
 source venv/bin/activate
 
 # Start the development server
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
 ```
 
 ### Production
@@ -297,7 +297,7 @@ pip install package-name
 pip freeze > requirements.txt
 
 # For Docker development
-docker-compose build api
+docker compose build api
 ```
 
 ## Testing
@@ -420,16 +420,16 @@ alembic upgrade head
 **Docker Issues**
 ```bash
 # Rebuild containers
-docker-compose down
-docker-compose build --no-cache
-docker-compose up
+docker compose down
+docker compose build --no-cache
+docker compose up
 ```
 
 ### Logs
 
 ```bash
 # Docker logs
-docker-compose logs -f api
+docker compose logs -f api
 
 # Application logs (if running locally)
 tail -f logs/app.log

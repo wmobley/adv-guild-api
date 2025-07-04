@@ -144,6 +144,10 @@
   "sample_quests": [
     {
       "name": "The Phantom of Edinburgh Castle",
+      "start_location_name": "Edinburgh Castle",
+      "quest_type_name": "Supernatural Encounter",
+      "difficulty_name": "Adventurer's Challenge",
+      "interest_name": "Horror & Supernatural",
       "synopsis": "Investigate the legendary Grey Lady who haunts the ancient fortress, uncovering centuries of royal secrets and supernatural encounters.",
       "itinerary": "Begin at the castle esplanade at twilight, explore the Crown Jewels chamber, visit St. Margaret's Chapel, and conclude at the Half Moon Battery where the Grey Lady is most often sighted.",
       "tags": "ghost hunting, Scottish history, royal intrigue, supernatural",
@@ -156,6 +160,10 @@
     },
     {
       "name": "Decoding the Stonehenge Stargate",
+      "start_location_name": "Stonehenge Portal",
+      "quest_type_name": "Archaeological Adventure",
+      "difficulty_name": "Wanderer's Path",
+      "interest_name": "Lost Civilizations",
       "synopsis": "Unravel the astronomical mysteries of Stonehenge during the summer solstice, when the ancient stone circle aligns with cosmic forces.",
       "itinerary": "Arrive before dawn for the solstice sunrise, study the heel stone alignment, explore the nearby cursus monuments, and participate in the traditional solstice celebration.",
       "tags": "astronomy, druids, ancient mysteries, solstice",
@@ -168,6 +176,10 @@
     },
     {
       "name": "Athena's Lost Wisdom",
+      "start_location_name": "Acropolis of Athena",
+      "quest_type_name": "Mythological Pilgrimage",
+      "difficulty_name": "Adventurer's Challenge",
+      "interest_name": "Ancient Mythology",
       "synopsis": "Seek the hidden chamber beneath the Parthenon where Athena's sacred owl guards scrolls containing the goddess's greatest philosophical insights.",
       "itinerary": "Start at the Acropolis Museum, climb to the Parthenon at golden hour, explore the Erechtheion, and end with a philosophical discussion at the Theatre of Dionysus.",
       "tags": "Greek mythology, philosophy, ancient wisdom, archaeology",
@@ -180,6 +192,10 @@
     },
     {
       "name": "Gladiator Spirits of the Colosseum",
+      "start_location_name": "Colosseum Arena",
+      "quest_type_name": "Historical Mystery",
+      "difficulty_name": "Wanderer's Path",
+      "interest_name": "Ancient Mythology",
       "synopsis": "Experience the echoes of ancient Rome by night, when gladiator spirits are said to reenact their greatest battles in the moonlit arena.",
       "itinerary": "Begin with underground hypogeum tour, explore the arena floor at sunset, visit the gladiator museum, and conclude with a midnight vigil in the upper tiers.",
       "tags": "Roman history, gladiators, spirits, ancient combat",
@@ -192,6 +208,10 @@
     },
     {
       "name": "The Pharaoh's Cosmic Key",
+      "start_location_name": "Great Pyramid Nexus",
+      "quest_type_name": "Mythological Pilgrimage",
+      "difficulty_name": "Hero's Trial",
+      "interest_name": "Lost Civilizations",
       "synopsis": "Unlock the astronomical secrets of the Great Pyramid, following the path of the pharaoh's soul through the star shafts to achieve immortality.",
       "itinerary": "Enter the pyramid at dawn, navigate the Grand Gallery, meditate in the King's Chamber during the stellar alignment, and emerge transformed by ancient wisdom.",
       "tags": "Egyptian mythology, astronomy, pharaohs, immortality",

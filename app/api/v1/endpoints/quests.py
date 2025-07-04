@@ -23,6 +23,19 @@ def get_quests(
     )
     return [schemas.QuestOut.model_validate(quest) for quest in quests]
 
+@router.get("/bookmarked/", response_model=List[schemas.QuestOut])
+def get_bookmarked_quests(
+    current_user: schemas.UserOut = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> List[schemas.QuestOut]:
+    """Get all quests bookmarked by the current user"""
+    try:
+        bookmarked_quests = crud_quests.get_user_bookmarked_quests(db, user_id=current_user.id)
+        return [schemas.QuestOut.model_validate(quest) for quest in bookmarked_quests]
+    except Exception as e:
+        print(f"Error in get_bookmarked_quests: {e}")  # Debug logging
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.get("/{quest_id}/", response_model=schemas.QuestOut)
 def get_quest(quest_id: int, db: Session = Depends(get_db)) -> schemas.QuestOut:
     quest = crud_quests.get_quest(db, quest_id=quest_id) # Changed

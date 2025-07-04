@@ -97,3 +97,7 @@ def remove_quest_bookmark_for_user(db: Session, user_id: int, quest_id: int) -> 
             db_quest.bookmarks -= 1  # type: ignore [assignment] # Decrement denormalized count
             db.add(db_quest)
     return db_quest
+
+def get_user_bookmarked_quests(db: Session, user_id: int) -> list[Quest]:
+    """Get all quests bookmarked by a specific user"""
+    return db.query(Quest).join(UserQuestBookmark).filter(UserQuestBookmark.user_id == user_id).all()
